@@ -4,7 +4,7 @@
 
 # Virtual Environments #
 ########################
-wagyr_env/
+venv/
 
 # PyCharm #
 ###########
