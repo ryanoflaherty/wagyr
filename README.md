@@ -1,4 +1,6 @@
 # wagyr
+Link to our current development: http://52.24.228.64/
+
 A web application that facilitates multiple users to place wagers on either sporting or
 custom events. It will utilize the ESPN API for live updates on many sporting events
 and Venmo for peer-to-peer payments. Additionally, the application will allow the user to
