@@ -77,11 +77,11 @@ WSGI_APPLICATION = 'wagyr_project.wsgi.application'
 DATABASES = {
     'default': {
 	'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wagyr',
-        'USER': 'db_user',
-        'PASSWORD': 'wagyr',
-        'HOST': 'localhost', # remotehcs.com / 52.36.163.49
-        'PORT': '3306',
+    'NAME': 'wagyr',
+    'USER': 'db_user',
+    'PASSWORD': 'wagyr',
+    'HOST': '52.24.228.64', # 52.24.228.64
+    'PORT': '3306',
     }
 }
 
