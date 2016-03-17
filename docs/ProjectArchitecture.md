@@ -1,6 +1,6 @@
 ## Project Architecture
 ### Assignment 3
-4. Based on your analysis, choose an architecture / platform to use for developing your solution (Node, PHP, JSP, etc). Explain why you believe that this particular architecture is the right choice. In addition, write a paragraph that examines an alternate platform and why you believe that it is not the correct choice. 
+- Based on your analysis, choose an architecture / platform to use for developing your solution (Node, PHP, JSP, etc). Explain why you believe that this particular architecture is the right choice. In addition, write a paragraph that examines an alternate platform and why you believe that it is not the correct choice. 
 					
 The team has decided to build our application Wagyr on the popular web framework Django, supported on an AWS EC2 Ubuntu instance.  The database will be relational, and we chose MySQL to handle this.  The front end will be supported by the Bootstrap framework and compiled using Django’s templating engine.  Our app will sit behind a Nginx web server and be managed by Gunicorn with several worker threads. 
 
