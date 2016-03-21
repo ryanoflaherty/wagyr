@@ -1,5 +1,5 @@
 # wagyr
-Link to our current development: http://52.24.228.64/
+Link to our current development: http://wagyr.noip.me
 
 A web application that facilitates multiple users to place wagers on either sporting or
 custom events. It will utilize the ESPN API for live updates on many sporting events
