@@ -14,7 +14,8 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
+STATIC_PATH = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -55,7 +57,9 @@ ROOT_URLCONF = 'wagyr_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            TEMPLATE_PATH,
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +84,7 @@ DATABASES = {
     'NAME': 'wagyr',
     'USER': 'db_user',
     'PASSWORD': 'wagyr',
-    'HOST': 'localhost', # 52.24.228.64
+    'HOST': '52.24.228.64', # 52.24.228.64
     'PORT': '3306',
     }
 }
@@ -123,4 +127,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+STATICFILES_DIRS = [
+    STATIC_PATH,
+    '/var/www/static/',
+]
+#STATIC_ROOT = os.path.join(BASE_DIR, "static/")
