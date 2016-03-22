@@ -80,7 +80,7 @@ DATABASES = {
     'NAME': 'wagyr',
     'USER': 'db_user',
     'PASSWORD': 'wagyr',
-    'HOST': '52.24.228.64', # 52.24.228.64
+    'HOST': 'localhost', # 52.24.228.64
     'PORT': '3306',
     }
 }
