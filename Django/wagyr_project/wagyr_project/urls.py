@@ -19,5 +19,8 @@ from app import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),  # Home Page
+    url(r'^services/$', views.services, name='services'),  # Home Page
+    url(r'^about/$', views.about, name='about'),  # Home Page
+    url(r'^contact/$', views.contact, name='contact'),  # Home Page
     url(r'^admin/', admin.site.urls),   # Admin Portal
 ]
