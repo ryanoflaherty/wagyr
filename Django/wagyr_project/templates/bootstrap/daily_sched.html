@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Daily Schedules
+{% endblock %}
+
+{% block h1 %}
+Daily Schedules
+{% endblock %}
+
+{% block body %}
+
+<form id="dailyschedForm" method="POST" action="/daily_sched" novalidate>
+    <div class="control-group form-group">
+        <div class="controls">
+            <label>Month</label>
+            <input type="text" class="form-control" id="month" required data-validation-required-message="Please enter a month.">
+        </div>
+    </div>
+    <div class="control-group form-group">
+        <div class="controls">
+            <label>Day</label>
+            <input type="tel" class="form-control" id="day" required data-validation-required-message="Please enter a day.">
+        </div>
+    </div>
+    <div id="success"></div>
+    <!-- For success/fail messages -->
+    <input type="submit" name="submit" class="btn btn-primary" value="Search" />
+</form>
+
+{% endblock %}
