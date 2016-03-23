@@ -131,3 +131,6 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 STATIC_ROOT = os.path.join(BASE_DIR, "collect_static/")
+
+
+APPEND_SLASH=False
