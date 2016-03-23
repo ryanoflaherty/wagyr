@@ -44,8 +44,8 @@ def daily_sched(request):
 			response = requests.get(url, params)
 			data = response.json()
 			games_dict = {'games': data['games']}
-			#return JsonResponse(games_dict)
-			return render(request, 'bootstrap/test.html', games_dict)
+			return JsonResponse(games_dict)
+			#return render(request, 'bootstrap/test.html', games_dict)
 		else:
 			return render_to_response('bootstrap/index.html')
 
