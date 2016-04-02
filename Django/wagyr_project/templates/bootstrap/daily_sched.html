@@ -9,7 +9,7 @@ Daily Schedules
 {% endblock %}
 
 {% block body %}
-<form id="dailyschedForm" method="POST" action="/daily_sched" novalidate>
+<form id="searchGamebyTeam" method="POST" action="/daily_sched" novalidate>
     {% csrf_token %}
     {% for field in form.visible_fields %}
         {{ field.errors }}

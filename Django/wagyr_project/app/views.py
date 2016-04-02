@@ -1,5 +1,6 @@
 from django.shortcuts import render_to_response, render
-from app.forms import dailySchedForm
+from app.forms import dailySchedForm, searchGamebyTeam
+from app.models import Game
 import requests
 from django.http import HttpResponse, JsonResponse
 
@@ -21,16 +22,17 @@ def contact(request):
 
 def daily_sched(request):
 	if request.method == 'POST':
-		form = dailySchedForm(request.POST)
+		form = searchGamebyTeam(request.POST)
 
 		# Have we been provided with a valid form?
 		if form.is_valid():
+
 			# Save the new category to the database.
-			form.save(commit=True)
+			#form.save(commit=True)
 
-			day = form.cleaned_data['day']
-			month = form.cleaned_data['month']
-
+			home_team = form.cleaned_data['team']
+			#month = form.cleaned_data['month']
+			"""
 			url = "http://api.sportradar.us/ncaamb-t3/games/2016/"
 			url += str(month)
 			url += "//"
@@ -40,18 +42,19 @@ def daily_sched(request):
 
 			# Now call the index() view.
 			# The user will be shown the homepage.
-			params = {'api_key': 'ukhq6uys9ukzy4rg9p8y5ejw'}
+			#params = {'api_key': 'ukhq6uys9ukzy4rg9p8y5ejw'}
 			response = requests.get(url, params)
 			data = response.json()
 			games_dict = {'games': data['games']}
-			return JsonResponse(games_dict)
+			"""
+			return Game.objects.filter(home_team=home_team)
 			#return render(request, 'bootstrap/test.html', games_dict)
 		else:
 			return render_to_response('bootstrap/index.html')
 
 	else:
 		# If the request was not a POST, display the form to enter details.
-		form = dailySchedForm()
+		form = searchGamebyTeam()
 
 		# Bad form (or form details), no form supplied...
 		# Render the form with error messages (if any).
