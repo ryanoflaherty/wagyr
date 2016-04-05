@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Home page
+Team Schedule Results
 {% endblock %}
 
 {% block h1 %}
-Home Page
+Team Schedule Results
 {% endblock %}
 
+
 {% block body %}
-<a href="/search-by-team">Search for a schedule by your favorite team!</a>
+{{ response.as_table }}
 {% endblock %}

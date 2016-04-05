@@ -1,17 +1,9 @@
 from django import forms
-from app.models import dailySched, Game
-
-class dailySchedForm(forms.ModelForm):
-    month = forms.CharField()
-    day = forms.CharField()
-
-    class Meta:
-        model = dailySched
-        fields = ('month', 'day')
+from app.models import Game
 
 
 class searchGamebyTeam(forms.ModelForm):
-    team = forms.CharField()
+    team = forms.CharField(label='team', max_length=100)
 
     class Meta:
         model = Game

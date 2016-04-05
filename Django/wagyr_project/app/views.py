@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response, render
-from app.forms import dailySchedForm, searchGamebyTeam
+from app.forms import searchGamebyTeam
 from app.models import Game
 import requests
 from django.http import HttpResponse, JsonResponse
@@ -20,45 +20,37 @@ def contact(request):
 		return render_to_response('bootstrap/contact.html')
 
 
-def daily_sched(request):
-	if request.method == 'POST':
-		form = searchGamebyTeam(request.POST)
 
-		# Have we been provided with a valid form?
-		if form.is_valid():
+"""
+url = "http://api.sportradar.us/ncaamb-t3/games/2016/"
+url += str(month)
+url += "//"
+url += str(day)
+url += "//"
+url += "schedule.json"
 
-			# Save the new category to the database.
-			#form.save(commit=True)
+# Now call the index() view.
+# The user will be shown the homepage.
+#
+data = response.json()
+games_dict = {'games': data['games']}
+"""
 
-			home_team = form.cleaned_data['team']
-			#month = form.cleaned_data['month']
-			"""
-			url = "http://api.sportradar.us/ncaamb-t3/games/2016/"
-			url += str(month)
-			url += "//"
-			url += str(day)
-			url += "//"
-			url += "schedule.json"
 
-			# Now call the index() view.
-			# The user will be shown the homepage.
-			#params = {'api_key': 'ukhq6uys9ukzy4rg9p8y5ejw'}
-			response = requests.get(url, params)
-			data = response.json()
-			games_dict = {'games': data['games']}
-			"""
-			return Game.objects.filter(home_team=home_team)
-			#return render(request, 'bootstrap/test.html', games_dict)
-		else:
-			return render_to_response('bootstrap/index.html')
+def search(request):
 
+	url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
+	params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+	api_response = requests.get(url, params)
+	data = api_response.json()
+	#schedule_dict =
+
+	if 'team' in request.GET:
+		response = 'You searched for: %r' % request.GET['team']
 	else:
-		# If the request was not a POST, display the form to enter details.
-		form = searchGamebyTeam()
+		response = 'You submitted an empty form.'
+	return render(request, 'bootstrap/results.html', {'response': data})
 
-		# Bad form (or form details), no form supplied...
-		# Render the form with error messages (if any).
-		return render(request, 'bootstrap/daily_sched.html', {'form': form})
-
-def test(request):
-		return render_to_response('bootstrap/test.html')
+def searchByTeam(request):
+	form = searchGamebyTeam()
+	return render(request, 'bootstrap/team_schedule.html', {'form': form})

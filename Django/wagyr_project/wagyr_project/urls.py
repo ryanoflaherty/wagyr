@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^services', views.services, name='services'),  # Home Page
     url(r'^about', views.about, name='about'),  # Home Page
     url(r'^contact', views.contact, name='contact'),  # Home Page
-    url(r'^daily_sched', views.daily_sched, name='daily_sched'),  # Home Page
-    url(r'^test', views.test, name='test'),
     url(r'^admin', admin.site.urls),   # Admin Portal
+    url(r'^search-by-team', views.searchByTeam, name='searchByTeam'),
+    url(r'^search/$', views.search, name='search'),
 ]
