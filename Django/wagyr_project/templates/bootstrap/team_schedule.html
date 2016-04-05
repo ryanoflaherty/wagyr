@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Team Schedules
+{% endblock %}
+
+{% block h1 %}
+Team Schedules
+{% endblock %}
+
+{% block body %}
+<form id="searchGamebyTeam" method="GET" action="/search/">
+    {% csrf_token %}
+    {% for field in form.visible_fields %}
+        {{ field.errors }}
+        {{ field.help_text }}
+    <div class="form-group">
+    <label>{{ field.label }}</label>
+        {{ field }}
+    </div>
+    {% endfor %}
+    <input type="submit" name="submit" class="btn btn-primary" value="Search" />
+</form>
+
+{% endblock %}
