@@ -10,5 +10,30 @@ Team Schedule Results
 
 
 {% block body %}
-{{ response }}
+
+        <table class="table table-striped">
+
+            <tr>
+                <th>Event ID</th>
+                <th>Home Team</th>
+                <th>Home Team ID</th>
+                <th>Away Team</th>
+                <th>Away Team ID</th>
+                <th>Venue</th>
+                <th>Date</th>
+            </tr>
+
+            {% for r in response %}
+            <tr>
+                <td>{{ r.event_id }}</td>
+                <td>{{ r.home_team }}</td>
+                <td>{{ r.home_id }}</td>
+                <td>{{ r.away_team }}</td>
+                <td>{{ r.away_id }}</td>
+                <td>{{ r.venue_id }}</td>
+                <td>{{ r.date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
 {% endblock %}

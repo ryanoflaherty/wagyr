@@ -3,6 +3,7 @@ from app.forms import searchGamebyTeam
 from app.models import Game
 import requests
 from django.http import HttpResponse, JsonResponse
+import datetime
 
 def index(request):
 		return render_to_response('bootstrap/index.html')
@@ -43,13 +44,26 @@ def search(request):
 	params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
 	api_response = requests.get(url, params)
 	data = api_response.json()
-	#schedule_dict =
+	response = []
 
-	if 'team' in request.GET:
-		response = 'You searched for: %r' % request.GET['team']
+	if request.GET["team"] != None:
+		for g in data["games"]:
+			if g["away"]["name"] == request.GET['team'] or g["home"]["name"] == request.GET['team']:
+				if g["status"] != "closed":
+					data = {}
+					data["event_id"] = g["id"]
+					data["date"] = g["scheduled"]
+					data["status"] = g["status"]
+					data["venue_id"] = g["venue"]["id"]
+					data["away_id"] = g["away"]["id"]
+					data["away_team"] = g["away"]["name"]
+					data["home_id"] = g["home"]["id"]
+					data["home_team"] = g["home"]["name"]
+					response.append(data)
+
+		return render(request, 'bootstrap/results.html', {'response': response})
 	else:
-		response = 'You submitted an empty form.'
-	return render(request, 'bootstrap/results.html', {'response': data})
+		return HttpResponse('404 Error')
 
 def searchByTeam(request):
 	form = searchGamebyTeam()
