@@ -14,6 +14,23 @@ def query_api_sched(search_term, messages):
             if g["away"]["name"] == search_term or g["home"]["name"] == search_term:
                 if g["status"] == "scheduled":
                     # Save Venue first if it does not exist due to Foreign key constraint
+
+                    venue, created = Venue.objects.get_or_create(
+                        venue_id=g["venue"]["id"],
+                        defaults={
+                            'name': g["venue"]["name"],
+                            'capacity': int(g["venue"]["capacity"]),
+                            'city': g["venue"]["city"],
+                            'zip': g["venue"]["zip"],
+                            'country': g["venue"]["country"],
+                            'state': g["venue"]["state"],
+                            'address': g["venue"]["address"],
+                        }
+                    )
+
+                    if created:
+                        messages.append("Created venue " + venue.name)
+                    """
                     venue = Venue.objects.filter(venue_id=g["venue"]["id"])
                     if not venue:
                         new_venue = Venue()
@@ -26,9 +43,10 @@ def query_api_sched(search_term, messages):
                         new_venue.address = g["venue"]["address"]
                         new_venue.venue_id = g["venue"]["id"]
                         new_venue.save()
-
+                    """
                     # Save Teams first if they do not exist due to Foreign key constraint
                     # TODO (Ryan) make a function to populate the team object with separate API call
+
 
                     if search_term == g["home"]["name"]:
                         search_away_team = Team.objects.filter(team_id=g["away"]["id"])

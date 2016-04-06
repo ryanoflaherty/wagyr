@@ -41,12 +41,14 @@ def search(request):
     if not games:
         messages.append("No games found in our database, querying API")
         api_query = query_api_sched(search_term, messages)
+
         if api_query:
             messages.append("Found " + str(api_query) + " results for future games")
             games = Game.objects.filter(Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
             end = time.time()
             messages.append("Time elapsed = " + str(end - start) + " seconds")
             return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages})
+
         else:
             messages.append("Could not query API or no search query provided")
             end = time.time()
