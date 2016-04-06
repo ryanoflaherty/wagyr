@@ -10,28 +10,34 @@ Team Schedule Results
 
 
 {% block body %}
+    <br>
+    <div class="=container">
+        <h3>Debug Messages</h3>
+    {% for message in debug %}
+        <ul>
+            <li>{{ message }}</li>
+        </ul>
+    {% endfor %}
+    </div>
+    <br>
 
         <table class="table table-striped">
-
+            <h3>Results</h3>
             <tr>
                 <th>Event ID</th>
                 <th>Home Team</th>
-                <th>Home Team ID</th>
                 <th>Away Team</th>
-                <th>Away Team ID</th>
                 <th>Venue</th>
                 <th>Date</th>
             </tr>
 
-            {% for r in response %}
+            {% for game in games %}
             <tr>
-                <td>{{ r.event_id }}</td>
-                <td>{{ r.home_team }}</td>
-                <td>{{ r.home_id }}</td>
-                <td>{{ r.away_team }}</td>
-                <td>{{ r.away_id }}</td>
-                <td>{{ r.venue_id }}</td>
-                <td>{{ r.date }}</td>
+                <td>{{ game.event_id }}</td>
+                <td>{{ game.home_team }}</td>
+                <td>{{ game.away_team }}</td>
+                <td>{{ game.venue.name }}</td>
+                <td>{{ game.date }}</td>
             </tr>
             {% endfor %}
         </table>

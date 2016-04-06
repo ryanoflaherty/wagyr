@@ -9,11 +9,14 @@ class Venue(models.Model):
     city = models.CharField(max_length=255, null=True)
     capactiy = models.IntegerField(null=True)
     name = models.CharField(max_length=255, null=True)
-    zip = models.IntegerField(null=True)
+    zip = models.CharField(max_length=255, null=True)
     country = models.CharField(max_length=255, null=True)
     state = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True)
-    venue_id = models.CharField(max_length=255, unique=True, default=1)
+    venue_id = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.city + ', ' + self.state
 
     class Meta:
         managed = True
@@ -24,8 +27,8 @@ class Team(models.Model):
     id = models.AutoField(primary_key=True)
     team_id = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
-    wins = models.IntegerField()
-    losses = models.IntegerField()
+    wins = models.IntegerField(null=True, blank=True)
+    losses = models.IntegerField(null=True, blank=True)
     venue = models.OneToOneField(Venue, db_column='venue', related_name='team_venue')
 
     def __str__(self):
@@ -59,6 +62,9 @@ class Game(models.Model):
     date = models.DateTimeField(default=timezone.now)
     venue = models.ForeignKey(Venue, to_field='venue_id', related_name='game_venue', default=1)
     status = models.CharField(max_length=255, default='scheduled')
+
+    def __str__(self):
+        return str(self.away_team) + ' @ ' + str(self.home_team)
 
     class Meta:
         managed = True

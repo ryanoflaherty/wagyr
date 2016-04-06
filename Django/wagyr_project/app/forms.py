@@ -3,7 +3,7 @@ from app.models import Game
 
 
 class searchGamebyTeam(forms.ModelForm):
-    team = forms.CharField(label='team', max_length=100)
+    team = forms.CharField(label='Search for your favorite team', max_length=100)
 
     class Meta:
         model = Game

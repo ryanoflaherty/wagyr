@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'wagyr_project.wsgi.application'
 
 DATABASES = {
     'default': {
-	'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'wagyr',
-    'USER': 'db_user',
-    'PASSWORD': 'wagyr',
-    'HOST': '52.24.228.64', # 52.24.228.64
-    'PORT': '3306',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'wagyr',
+        'USER': 'db_user',
+        'PASSWORD': 'wagyr',
+        'HOST': '52.24.228.64', # 52.24.228.64
+        'PORT': '3306',
     }
 }
 
@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
