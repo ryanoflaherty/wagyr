@@ -1,107 +1,166 @@
 import requests
 from app.models import Game, Venue, Team
+import time
 
 
-def query_api_sched(search_term, messages):
-    url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
-    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
-    api_response = requests.get(url, params)
-    data = api_response.json()
-    count = 0
+def check_sched_loaded(Team, messages):
+    print("check_sched")
+    messages.append("Checking to see if schedule is loaded for " + Team.name)
 
-    if search_term != None:
-        for g in data["games"]:
-            if g["away"]["name"] == search_term or g["home"]["name"] == search_term:
-                if g["status"] == "scheduled":
-                    # Save Venue first if it does not exist due to Foreign key constraint
-
-                    venue, created = Venue.objects.get_or_create(
-                        venue_id=g["venue"]["id"],
-                        defaults={
-                            'name': g["venue"]["name"],
-                            'capacity': int(g["venue"]["capacity"]),
-                            'city': g["venue"]["city"],
-                            'zip': g["venue"]["zip"],
-                            'country': g["venue"]["country"],
-                            'state': g["venue"]["state"],
-                            'address': g["venue"]["address"],
-                        }
-                    )
-
-                    if created:
-                        messages.append("Created venue " + venue.name)
-                    """
-                    venue = Venue.objects.filter(venue_id=g["venue"]["id"])
-                    if not venue:
-                        new_venue = Venue()
-                        new_venue.name = g["venue"]["name"]
-                        new_venue.capacity = int(g["venue"]["capacity"])
-                        new_venue.city = g["venue"]["city"]
-                        new_venue.zip = g["venue"]["zip"]
-                        new_venue.country = g["venue"]["country"]
-                        new_venue.state = g["venue"]["state"]
-                        new_venue.address = g["venue"]["address"]
-                        new_venue.venue_id = g["venue"]["id"]
-                        new_venue.save()
-                    """
-                    # Save Teams first if they do not exist due to Foreign key constraint
-                    # TODO (Ryan) make a function to populate the team object with separate API call
+    if not Team.is_sched_loaded():
+        messages.append("Schedule not loaded, getting it now")
+        count = get_games(Team, messages)
+        if count:
+            return count
+    else:
+        messages.append("Schedule is already loaded")
 
 
-                    if search_term == g["home"]["name"]:
-                        search_away_team = Team.objects.filter(team_id=g["away"]["id"])
-                        if not search_away_team:
-                            away_team = Team()
-                            away_team.team_id = g["away"]["id"]
-                            away_team.name = g["away"]["name"]
-                            away_team.venue = Venue.objects.create(city="testing", state="great", venue_id="hjeenl")
-                            away_team.wins = 10
-                            away_team.losses = 20
-                            away_team.save()
-                        home_team = Team()
-                        home_team.team_id = g["home"]["id"]
-                        home_team.name = g["home"]["name"]
-                        home_team.venue = Venue.objects.get(venue_id=g["venue"]["id"])
-                        home_team.wins = 20
-                        home_team.losses = 10
-                        home_team.save()
-                    else:
-                        search_away_team = Team.objects.filter(team_id=g["home"]["id"])
-                        if not search_away_team:
-                            away_team = Team()
-                            away_team.team_id = g["home"]["id"]
-                            away_team.name = g["home"]["name"]
-                            away_team.venue = Venue.objects.get(venue_id=g["venue"]["id"])
-                            away_team.wins = 10
-                            away_team.losses = 20
-                            away_team.save()
-                        home_team = Team()
-                        home_team.team_id = g["away"]["id"]
-                        home_team.name = g["away"]["name"]
-                        home_team.venue = Venue.objects.create(city="Test", state="help", venue_id="343432")
-                        home_team.wins = 20
-                        home_team.losses = 10
-                        home_team.save()
+def api_query_sched(search_term, messages):
+    print("api_query")
+    messages.append("No games found in our database, querying API")
+    newTeam, created = get_create_team(search_term, messages)
 
-                    # Create a new Game instance
-
-                    game = Game()
-                    game.event_id = g["id"]
-                    game.date = g["scheduled"]
-                    game.status = g["status"]
-                    game.venue = Venue.objects.get(venue_id=g["venue"]["id"])
-                    game.away_team = Team.objects.get(team_id=g["away"]["id"])
-                    game.home_team = Team.objects.get(team_id=g["home"]["id"])
-                    count += 1
-                    if search_term == g["home"]["name"]:
-                        messages.append("Adding new game to the database... " + g["home"]["name"] +  " vs " + g["away"]["name"])
-                    else:
-                        messages.append("Adding new game to the database... " + g["home"]["name"] + " @ " + g["away"]["name"])
-                    game.save()
-                    break
-
+    if created:
+        messages.append("New entry for " + newTeam.name + " successful, getting schedule")
+        count = get_games(newTeam, messages)
         return count
     else:
-        return "No search term provided"
+        count = check_sched_loaded(newTeam, messages)
+        return count
+
+
+def get_games(Team, messages):
+    print("get_games")
+    schedule_url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
+    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+    try:
+        print("tried")
+        schedule_response = requests.get(schedule_url, params)
+        data = schedule_response.json()
+    except ValueError as e:
+        print(e)
+        time.sleep(1)
+        schedule_response = requests.get(schedule_url, params)
+        data = schedule_response.json()
+        pass
+
+    count = 0
+    print("passed try, catch")
+    messages.append("Received data from API")
+
+    for g in data["games"]:
+        if Team.name in g["away"]["name"] or Team.name in g["home"]["name"]:
+            if g["status"] == "scheduled":
+                count += 1
+                print(g["status"])
+                # Check for non US
+                if not g["venue"]["country"] == 'USA':
+                    g["venue"]["zip"] = ''
+                    g["venue"]["state"] = ''
+
+                # Save Venue first if it does not exist due to Foreign key constraint
+                venue, created = Venue.objects.get_or_create(
+                    pk=g["venue"]["id"],
+                    defaults={
+                        'name': g["venue"]["name"],
+                        'capacity': int(g["venue"]["capacity"]),
+                        'city': g["venue"]["city"],
+                        'zip': g["venue"]["zip"],
+                        'country': g["venue"]["country"],
+                        'state': g["venue"]["state"],
+                        'address': g["venue"]["address"],
+                    }
+                )
+
+                if created:
+                    messages.append("Created venue " + venue.name)
+                else:
+                    messages.append("Venue exists")
+
+                if Team.name == g["home"]["name"]:
+                    # Check away team to see if it is in the DB. If not, create it
+                    opponent, new = get_create_team(g["away"]["name"], messages)
+
+                    # Create game instance
+                    game, created = Game.objects.get_or_create(
+                        pk=g["id"],
+                        defaults={
+                            'date': g["scheduled"],
+                            'status': g["status"],
+                            'venue': venue,
+                            'away_team': opponent,
+                            'home_team': Team,
+                        }
+                    )
+                    if created:
+                        messages.append("Adding new game to the database... " + g["home"]["name"] + " vs " + g["away"]["name"])
+                else:
+                    # Check away team to see if it is in the DB. If not, create it
+                    opponent, new = get_create_team(g["home"]["name"], messages)
+
+                    # Create game instance
+                    game, created = Game.objects.get_or_create(
+                        pk=g["id"],
+                        defaults={
+                            'date': g["scheduled"],
+                            'status': g["status"],
+                            'venue': venue,
+                            'away_team': Team,
+                            'home_team': opponent,
+                        }
+                    )
+                    if created:
+                        messages.append("Adding new game to the database... " + g["home"]["name"] + " @ " + g["away"]["name"])
+    return count
+
+
+def get_create_team(search_term, messages):
+    print("get_create")
+    standings_url = "http://api.sportradar.us/nba-t3/seasontd/2015/REG/standings.json"
+    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+    try:
+        standings_response = requests.get(standings_url, params)
+        data = standings_response.json()
+    except ValueError as e:
+        print(e)
+        time.sleep(1)
+        standings_response = requests.get(standings_url, params)
+        data = standings_response.json()
+        pass
+
+    data = data["conferences"]
+
+    for conf in data:
+        div = conf["divisions"]
+        for d in div:
+            team_data = d["teams"]
+            for team in team_data:
+                team_name = str(team["market"]) + " " + str(team["name"])
+                if search_term in team_name:
+                    team_id = team["id"]
+                    team_wins = int(team["wins"])
+                    team_losses = int(team["losses"])
+
+                    messages.append("Creating new model for " + team_name)
+
+                    newTeam, created = Team.objects.get_or_create(
+                        pk=team_id,
+                        defaults={
+                            'name': team_name,
+                            'wins': team_wins,
+                            'losses': team_losses,
+                        }
+                    )
+                    if created:
+                        messages.append("Created Team " + newTeam.name)
+                    else:
+                        messages.append("Team already exists")
+
+                    return newTeam, created
+
+
+def parse_request(request):
+    return True
 
 

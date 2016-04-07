@@ -24,20 +24,21 @@ Team Schedule Results
         <table class="table table-striped">
             <h3>Results</h3>
             <tr>
-                <th>Event ID</th>
                 <th>Home Team</th>
+
                 <th>Away Team</th>
                 <th>Venue</th>
                 <th>Date</th>
+                <th>Status</th>
             </tr>
 
             {% for game in games %}
             <tr>
-                <td>{{ game.event_id }}</td>
-                <td>{{ game.home_team }}</td>
-                <td>{{ game.away_team }}</td>
+                <td>{{ game.home_team }} ({{ game.home_team.wins }} - {{ game.home_team.losses }})</td>
+                <td>{{ game.away_team }} ({{ game.away_team.wins }} - {{ game.away_team.losses }})</td>
                 <td>{{ game.venue.name }}</td>
                 <td>{{ game.date }}</td>
+                <td>{{ game.status }}</td>
             </tr>
             {% endfor %}
         </table>
