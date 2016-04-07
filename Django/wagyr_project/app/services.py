@@ -3,34 +3,34 @@ from app.models import Game, Venue, Team
 import time
 
 
-def check_sched_loaded(Team, messages):
+def check_sched_loaded(Team, messages, err):
     print("check_sched")
     messages.append("Checking to see if schedule is loaded for " + Team.name)
 
     if not Team.is_sched_loaded():
         messages.append("Schedule not loaded, getting it now")
-        count = get_games(Team, messages)
+        count = get_games(Team, messages, err)
         if count:
             return count
     else:
         messages.append("Schedule is already loaded")
 
 
-def api_query_sched(search_term, messages):
+def api_query_sched(search_term, messages, err):
     print("api_query")
     messages.append("No games found in our database, querying API")
-    newTeam, created = get_create_team(search_term, messages)
+    newTeam, created = get_create_team(search_term, messages, err)
 
     if created:
         messages.append("New entry for " + newTeam.name + " successful, getting schedule")
-        count = get_games(newTeam, messages)
+        count = get_games(newTeam, messages, err)
         return count
     else:
-        count = check_sched_loaded(newTeam, messages)
+        count = check_sched_loaded(newTeam, messages, err)
         return count
 
 
-def get_games(Team, messages):
+def get_games(Team, messages, err):
     print("get_games")
     schedule_url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
     params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
@@ -40,6 +40,7 @@ def get_games(Team, messages):
         data = schedule_response.json()
     except ValueError as e:
         print(e)
+        err += 1
         time.sleep(1)
         schedule_response = requests.get(schedule_url, params)
         data = schedule_response.json()
@@ -80,7 +81,7 @@ def get_games(Team, messages):
 
                 if Team.name == g["home"]["name"]:
                     # Check away team to see if it is in the DB. If not, create it
-                    opponent, new = get_create_team(g["away"]["name"], messages)
+                    opponent, new = get_create_team(g["away"]["name"], messages, err)
 
                     # Create game instance
                     game, created = Game.objects.get_or_create(
@@ -97,7 +98,7 @@ def get_games(Team, messages):
                         messages.append("Adding new game to the database... " + g["home"]["name"] + " vs " + g["away"]["name"])
                 else:
                     # Check away team to see if it is in the DB. If not, create it
-                    opponent, new = get_create_team(g["home"]["name"], messages)
+                    opponent, new = get_create_team(g["home"]["name"], messages, err)
 
                     # Create game instance
                     game, created = Game.objects.get_or_create(
@@ -115,7 +116,7 @@ def get_games(Team, messages):
     return count
 
 
-def get_create_team(search_term, messages):
+def get_create_team(search_term, messages, err):
     print("get_create")
     standings_url = "http://api.sportradar.us/nba-t3/seasontd/2015/REG/standings.json"
     params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
@@ -124,6 +125,7 @@ def get_create_team(search_term, messages):
         data = standings_response.json()
     except ValueError as e:
         print(e)
+        err += 1
         time.sleep(1)
         standings_response = requests.get(standings_url, params)
         data = standings_response.json()
@@ -158,9 +160,5 @@ def get_create_team(search_term, messages):
                         messages.append("Team already exists")
 
                     return newTeam, created
-
-
-def parse_request(request):
-    return True
 
 

@@ -36,6 +36,7 @@ def search(request):
     search_term = request.GET['team'].title()
 
     messages = []
+    err = 0
     messages.append("Querying internal DB for Games that the " + str(search_term) + " are playing in")
 
     # TODO (Ryan) If we add one teams whole schedule, this query will return true for a couple games for every team.
@@ -47,25 +48,25 @@ def search(request):
     games = Game.objects.select_related('home_team', 'away_team').filter(Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
 
     if not games:
-        api_query = api_query_sched(search_term, messages)
+        api_query = api_query_sched(search_term, messages, err)
 
         if api_query:
             messages.append("Found " + str(api_query) + " results for future games")
             games = Game.objects.filter(Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
             end = time.time()
             messages.append("Time elapsed = " + str(end - start) + " seconds")
-            return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages})
+            return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages, 'errors': err})
 
         else:
             messages.append("Error getting schedule")
             end = time.time()
             messages.append("Time elapsed = " + str(end - start) + " seconds")
-            return render(request, 'bootstrap/results.html', {'debug': messages})
+            return render(request, 'bootstrap/results.html', {'debug': messages, 'errors': err})
     else:
-        check_sched_loaded(games[0].get_search_team(search_term), messages)
+        check_sched_loaded(games[0].get_search_team(search_term), messages, err)
         messages.append("Found " + str(games.count()) + " in our database")
         end = time.time()
         messages.append("Time elapsed = " + str(end-start) + " seconds")
-        return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages})
+        return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages, 'errors': err})
 
 

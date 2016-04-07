@@ -13,11 +13,12 @@ Team Schedule Results
     <br>
     <div class="=container">
         <h3>Debug Messages</h3>
-    {% for message in debug %}
         <ul>
+            <li>API held up processing for {{ errors }} seconds</li>
+            {% for message in debug %}
             <li>{{ message }}</li>
+            {% endfor %}
         </ul>
-    {% endfor %}
     </div>
     <br>
 
@@ -25,7 +26,6 @@ Team Schedule Results
             <h3>Results</h3>
             <tr>
                 <th>Home Team</th>
-
                 <th>Away Team</th>
                 <th>Venue</th>
                 <th>Date</th>
