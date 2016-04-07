@@ -1,6 +1,7 @@
 import requests
 from app.models import Game, Venue, Team
 import time
+from django.core.cache import cache
 
 
 def check_sched_loaded(Team, messages, err):
@@ -32,27 +33,37 @@ def api_query_sched(search_term, messages, err):
 
 def get_games(Team, messages, err):
     print("get_games")
-    schedule_url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
-    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
-    try:
-        schedule_response = requests.get(schedule_url, params)
-        data = schedule_response.json()
-    except ValueError as e:
-        print(e)
-        err.append(e)
-        time.sleep(1)
-        schedule_response = requests.get(schedule_url, params)
-        data = schedule_response.json()
-        pass
+
+    # Use fast cache if it exists
+    data = cache.get('season_schedule')
+    if not data:
+        schedule_url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
+        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        try:
+            schedule_response = requests.get(schedule_url, params)
+            data = schedule_response.json()
+            messages.append("Received data from API")
+            cache.set('season_schedule', data)
+            messages.append("Set cache")
+        except ValueError as e:
+            print(e)
+            err.append(e)
+            time.sleep(1)
+            schedule_response = requests.get(schedule_url, params)
+            data = schedule_response.json()
+            messages.append("Received data from API")
+            messages.append("Set cache")
+            pass
+    else:
+        messages.append("Using cached data")
 
     count = 0
-    messages.append("Received data from API")
 
     for g in data["games"]:
         if Team.name in g["away"]["name"] or Team.name in g["home"]["name"]:
             if g["status"] == "scheduled":
                 count += 1
-                print(g["status"])
+
                 # Check for non US
                 if not g["venue"]["country"] == 'USA':
                     g["venue"]["zip"] = ''
@@ -116,18 +127,28 @@ def get_games(Team, messages, err):
 
 def get_create_team(search_term, messages, err):
     print("get_create")
-    standings_url = "http://api.sportradar.us/nba-t3/seasontd/2015/REG/standings.json"
-    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
-    try:
-        standings_response = requests.get(standings_url, params)
-        data = standings_response.json()
-    except ValueError as e:
-        print(e)
-        err.append(e)
-        time.sleep(1)
-        standings_response = requests.get(standings_url, params)
-        data = standings_response.json()
-        pass
+
+    # Use fast cache if it exists
+    data = cache.get('standings')
+    if not data:
+        standings_url = "http://api.sportradar.us/nba-t3/seasontd/2015/REG/standings.json"
+        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        try:
+            standings_response = requests.get(standings_url, params)
+            data = standings_response.json()
+            cache.set('standings', data, 120)
+            messages.append("Set cache")
+        except ValueError as e:
+            print(e)
+            err.append(e)
+            time.sleep(1)
+            standings_response = requests.get(standings_url, params)
+            data = standings_response.json()
+            cache.set('standings', data, 120)
+            messages.append("Set cache")
+            pass
+    else:
+        messages.append("Using cached data")
 
     data = data["conferences"]
 
