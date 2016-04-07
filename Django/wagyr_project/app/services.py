@@ -35,19 +35,17 @@ def get_games(Team, messages, err):
     schedule_url = "http://api.sportradar.us/nba-t3/games/2015/REG/schedule.json"
     params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
     try:
-        print("tried")
         schedule_response = requests.get(schedule_url, params)
         data = schedule_response.json()
     except ValueError as e:
         print(e)
-        err += 1
+        err.append(e)
         time.sleep(1)
         schedule_response = requests.get(schedule_url, params)
         data = schedule_response.json()
         pass
 
     count = 0
-    print("passed try, catch")
     messages.append("Received data from API")
 
     for g in data["games"]:
@@ -125,7 +123,7 @@ def get_create_team(search_term, messages, err):
         data = standings_response.json()
     except ValueError as e:
         print(e)
-        err += 1
+        err.append(e)
         time.sleep(1)
         standings_response = requests.get(standings_url, params)
         data = standings_response.json()
