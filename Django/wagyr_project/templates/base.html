@@ -39,8 +39,8 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">
-                    <img src="http://placehold.it/150x50&text=Logo" alt="">
+                <a class="navbar-brand" style="margin-top:10px; padding-right:10px;" href="/">
+                    <strong style="color:white; font-size:180%;">wagyr</strong>
                 </a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -55,6 +55,27 @@
                     <li>
                         <a href="/contact">Contact</a>
                     </li>
+                    <li>
+                        <a href="/wagyrs">Wagyrs</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{ user.username }}<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/accounts/profile">Profile</a></li>
+                            <li><a href="#">My Wagyrs</a></li>
+                            <li><a href="/admin">Admin Portal</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/accounts/logout/">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li>
+                       <a href="/accounts/login/">Login</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -69,6 +90,8 @@
                 <h1>{% block h1 %}{{ page.title }}{% endblock %}</h1>
                 {% block body %}
 
+                {% endblock %}
+                {% block content %}
                 {% endblock %}
             </div>
         </div>

@@ -1,35 +1,46 @@
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 from app.forms import searchGamebyTeam
 from app.models import Game, Team
-from django.shortcuts import get_list_or_404
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
 import time
-from django.http import HttpResponse, JsonResponse
 import datetime
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    return render_to_response('bootstrap/index.html')
+    return render(request, 'bootstrap/index.html')
 
 
 def about(request):
-    return render_to_response('bootstrap/about.html')
+    return render(request, 'bootstrap/about.html')
 
 
 def services(request):
-    return render_to_response('bootstrap/services.html')
+    return render(request, 'bootstrap/services.html')
 
 
 def contact(request):
-    return render_to_response('bootstrap/contact.html')
+    return render(request, 'bootstrap/contact.html')
 
 
+@login_required()
+def profile(request):
+    return render(request, 'bootstrap/profile.html')
+
+
+@login_required()
+def wagyrs(request):
+    return render(request, 'bootstrap/wagyr.html')
+
+
+@login_required()
 def searchByTeam(request):
     form = searchGamebyTeam()
     return render(request, 'bootstrap/team_schedule.html', {'form': form})
 
 
+@login_required()
 def search(request):
     start = time.time()
 

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'registration',
+    'crispy_forms',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -53,6 +55,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 ROOT_URLCONF = 'wagyr_project.urls'
+LOGIN_REDIRECT_URL = '/'
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 TEMPLATES = [
     {
