@@ -4,7 +4,7 @@ from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
 import time
-import datetime
+from django.
 from django.contrib.auth.decorators import login_required
 
 
@@ -37,14 +37,13 @@ def wagyrs(request):
 @login_required()
 def searchByTeam(request):
     form = searchGamebyTeam()
-    return render(request, 'bootstrap/team_schedule.html', {'form': form})
+    return render(request, 'bootstrap/team_schedule.html', {'search_form': form})
 
 
 @login_required()
 def search(request):
     start = time.time()
-
-    search_term = request.GET['team'].title()
+    search_term = request.POST['team'].title()
 
     messages = []
     err = []
