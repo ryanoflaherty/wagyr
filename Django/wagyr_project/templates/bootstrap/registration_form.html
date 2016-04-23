@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Create User{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">User Profile</h3>
+        </div>
+        <div class="panel-body">
+            <form id="user-create-form" class="form-horizontal" action="./" method="POST" novalidate>
+                {% csrf_token %}
+                {% crispy user_create_form %}
+                <div class="form-group">
+                    <div class="aab controls col-md-2"></div>
+                    <div class="controls col-md-8">
+                        <input type="submit" name="submit" value="Submit" class="btn btn-success">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

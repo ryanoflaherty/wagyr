@@ -2,20 +2,16 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-'''
-from django.contrib.auth import User
-'''
-
 
 class Wagyr(models.Model):
-	wagyr_id=models.CharField(max_length=255, primary_key=True)
-	user1_id=models.CharField(max_length=255, null=True)
-	user2_id=models.CharField(max_length=255, null=True)
-	game_id=models.CharField(max_length=255, null=True)
-	
-	class Meta:
-        	managed = True
-        	db_table = 'wagyr'
+    wagyr_id = models.CharField(max_length=255, primary_key=True)
+    user1_id = models.CharField(max_length=255, null=True)
+    user2_id = models.CharField(max_length=255, null=True)
+    game_id = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'wagyr'
 
 
 class Venue(models.Model):
@@ -119,4 +115,4 @@ class Wagyr(models.Model):
     class Meta:
         managed = True
         db_table = 'wagyr'
-	'''
+    '''
