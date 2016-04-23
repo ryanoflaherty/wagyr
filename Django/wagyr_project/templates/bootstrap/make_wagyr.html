@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}
 Make a Wagyr
 {% endblock %}
@@ -8,3 +10,15 @@ Make a Wagyr
 Create A Wagyr
 {% endblock %}
 
+{% block content %}
+<form id="create-wagyr-form" class="form-horizontal" action="./" method="POST" novalidate>
+    {% csrf_token %}
+    {% crispy create_wagyr_form %}
+    <div class="form-group">
+        <div class="aab controls col-md-2"></div>
+        <div class="controls col-md-8">
+            <input type="submit" name="submit" value="Submit" class="btn btn-success">
+        </div>
+    </div>
+</form>
+{% endblock content %}

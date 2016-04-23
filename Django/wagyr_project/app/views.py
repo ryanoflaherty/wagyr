@@ -4,8 +4,8 @@ from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
 import time
-from django.
 from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
 
 
 def index(request):
@@ -33,10 +33,15 @@ def profile(request):
 def wagyrs(request):
     return render(request, 'bootstrap/wagyr.html')
 
-def makeWagyr(request, game_id):
-    obj = Game.objects.get(id=game_id)
-    form = createWagyrbyHame()  
-    return render(request, 'bootstrap/make_wagyr.html')
+
+class MakeWagyr(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        game_id = request.GET['game_id']
+        obj = Game.objects.get(pk=game_id)
+        form = createWagyrbyGame()
+        return render(request, 'bootstrap/make_wagyr.html', {'create_wagyr_form': form, 'game': obj})
+
 
 
 #@login_required()

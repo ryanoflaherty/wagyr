@@ -61,7 +61,6 @@ class Team(models.Model):
 
         return fetched
 
-
     def get_record(self):
         self.wins = 40
         self.losses = 30
