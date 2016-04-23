@@ -36,6 +36,12 @@ class searchGamebyTeam(forms.ModelForm):
         )
 
 
+class createWagyrbyGame(forms.ModelForm):
+    class Meta:
+        model = Game
+        fields = ('event_id',)
+
+
 class UserCreateForm(UserCreationForm):
 
     username = forms.CharField(
@@ -152,3 +158,4 @@ class LoginForm(AuthenticationForm):
             'username',
             'password',
         )
+

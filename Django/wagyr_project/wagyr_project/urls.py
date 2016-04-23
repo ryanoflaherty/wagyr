@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^admin', admin.site.urls),   # Admin Portal
     url(r'^wagyrs', views.wagyrs, name='wagyrs'),
     url(r'^search-by-team', views.searchByTeam, name='searchByTeam'),
+    url(r'^make-wagyr/(?P<game_id>\d+)$', views.makeWagyr, name='makeWagyr'),
     url(r'^search/$', views.search, name='search'),
     url(r'^accounts/profile', views.profile, name='profile'),
     url('^accounts/', include('registration.backends.default.urls')),
