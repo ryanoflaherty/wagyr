@@ -37,10 +37,21 @@ class searchGamebyTeam(forms.ModelForm):
 
 
 class createWagyrbyGame(forms.ModelForm):
+    opponent_id = forms.CharField(
+        label='Opponent',
+	widget=forms.TextInput(attrs={'placeholder': 'username'}),
+	max_length=100,
+	required=True,
+    )
+    
+    amount = forms.CharField(
+    	label='Amount', max_length=10, required=True
+    )
+
 
     class Meta:
         model = Wagyr
-        fields = ('user1_id', 'user2_id',)
+        fields = ('opponent_id', 'amount',)
 
     def __init__(self, *args, **kwargs):
         super(createWagyrbyGame, self).__init__(*args, **kwargs)
@@ -55,8 +66,7 @@ class createWagyrbyGame(forms.ModelForm):
         self.helper.form_action = "./"
 
         self.helper.layout = Layout(
-            'user1_id',
-            'user2_id',
+            'Opponent',
         )
 
 

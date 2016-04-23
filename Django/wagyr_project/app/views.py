@@ -41,6 +41,15 @@ class MakeWagyr(TemplateView):
         obj = Game.objects.get(pk=game_id)
         form = createWagyrbyGame()
         return render(request, 'bootstrap/make_wagyr.html', {'create_wagyr_form': form, 'game': obj})
+''' 
+    def post(self, request):
+	form = createWagyrbyGame(request.POST)
+	if form.is_valid():
+'''
+		
+
+
+
 
 
 
