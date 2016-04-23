@@ -1,6 +1,7 @@
 import requests
 from app.models import Game, Venue, Team
 import time
+import pdb
 from django.core.cache import cache
 
 
@@ -135,6 +136,7 @@ def get_create_team(search_term, messages, err):
         params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
         try:
             standings_response = requests.get(standings_url, params)
+            pdb.set_trace()
             data = standings_response.json()
             cache.set('standings', data, 120)
             messages.append("Set cache")

@@ -2,6 +2,21 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+'''
+from django.contrib.auth import User
+'''
+
+
+class Wagyr(models.Model):
+	wagyr_id=models.CharField(max_length=255, primary_key=True)
+	user1_id=models.CharField(max_length=255, null=True)
+	user2_id=models.CharField(max_length=255, null=True)
+	game_id=models.CharField(max_length=255, null=True)
+	
+	class Meta:
+        	managed = True
+        	db_table = 'wagyr'
+
 
 class Venue(models.Model):
     venue_id = models.CharField(max_length=255, primary_key=True)
@@ -66,9 +81,6 @@ class Player(models.Model):
     lname = models.CharField(max_length=255)
     team = models.ForeignKey(Team, db_column='team', related_name='players')
 
-    def __str__(self):
-        return self.fname + ' ' + self.lname
-
     class Meta:
         managed = True
         db_table = 'player'
@@ -96,10 +108,16 @@ class Game(models.Model):
         db_table = 'game'
         ordering = ['date']
 
-
+'''
 class Wagyr(models.Model):
     id = models.AutoField(primary_key=True)
+    #creted = models.Foreign(WgyrUser, to_field='usernme', nme='creter')
+    #invited = models.ForeignKey(WgyrUser, to_field='usernme', nme='invited')
+    wager = models.IntegerField()
+    #completed = models.NullBoolenField()
+    winner = models.ForeignKey('self', defult=some_func)
 
     class Meta:
         managed = True
         db_table = 'wagyr'
+	'''

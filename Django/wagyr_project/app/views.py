@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from app.forms import searchGamebyTeam
+from app.forms import searchGamebyTeam, createWagyrbyGame
 from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
@@ -33,15 +33,21 @@ def profile(request):
 def wagyrs(request):
     return render(request, 'bootstrap/wagyr.html')
 
+def makeWagyr(request, game_id):
+    obj = Game.objects.get(id=game_id)
+    form = createWagyrbyHame()  
+    return render(request, 'bootstrap/make_wagyr.html')
 
-@login_required()
+
+#@login_required()
 def searchByTeam(request):
     form = searchGamebyTeam()
     return render(request, 'bootstrap/team_schedule.html', {'form': form})
 
 
-@login_required()
+#@login_required()
 def search(request):
+
     start = time.time()
 
     search_term = request.GET['team'].title()
