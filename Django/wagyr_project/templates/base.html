@@ -50,9 +50,6 @@
                         <a href="/about">About</a>
                     </li>
                     <li>
-                        <a href="/services">Services</a>
-                    </li>
-                    <li>
                         <a href="/contact">Contact</a>
                     </li>
                     <li>
@@ -65,7 +62,7 @@
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{ user.username }}<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="/accounts/profile">Profile</a></li>
-                            <li><a href="#">My Wagyrs</a></li>
+                            <li><a href="/wagyrs">My Wagyrs</a></li>
                             <li><a href="/admin">Admin Portal</a></li>
                             <li class="divider"></li>
                             <li><a href="/accounts/logout/">Logout</a></li>
@@ -74,6 +71,9 @@
                     {% else %}
                     <li>
                        <a href="/accounts/login/">Login</a>
+                    </li>
+                    <li>
+                       <a href="/accounts/register/">Register</a>
                     </li>
                     {% endif %}
                 </ul>
