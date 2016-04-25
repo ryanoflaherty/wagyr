@@ -216,10 +216,9 @@ def profile(request):
 
 @login_required()
 def wagyrs(request):
-    user = request.user.username
-    wagyrs = Wagyr.objects.filter(Q(self_id__username=user) | Q(opponent_id__name=user))
-    import pdb; pdb.set_trace()
-    return render(request, 'bootstrap/wagyr.html')
+    user = request.user
+    wagyrs = Wagyr.objects.filter(Q(self_id=user) | Q(opponent_id=user))
+    return render(request, 'bootstrap/wagyr.html', {'user': user, 'wagyrs': wagyrs})
 
 
 class MakeWagyr(LoginRequiredMixin, TemplateView):
