@@ -38,29 +38,28 @@ class searchGamebyTeam(forms.ModelForm):
 class createWagyrbyGame(forms.ModelForm):
     opponent_id = forms.CharField(
         label='Opponent',
-	widget=forms.TextInput(attrs={'placeholder': 'username'}),
-	max_length=100,
-	required=True,
-    )
-    
-    amount = forms.DecimalField(
-    	label='Amount', required=True
-    )
-
-    wagyr_id = forms.CharField(
-        label="ID",
-        widget=forms.TextInput(attrs={'placeholder':'username'}),
+        widget=forms.TextInput(attrs={'placeholder': 'username'}),
         max_length=100,
         required=True,
     )
 
+    amount = forms.DecimalField(
+        label='Amount', required=True
+    )
+
+    wagyr_id = forms.CharField(
+        label="ID",
+        widget=forms.TextInput(attrs={'placeholder': 'username'}),
+        max_length=100,
+        required=True,
+    )
 
     class Meta:
         model = Wagyr
         widgets = {
-			'self_id':forms.HiddenInput(), 
-			'game_id':forms.HiddenInput(),
-	}
+            'self_id': forms.HiddenInput(),
+            'game_id': forms.HiddenInput(),
+        }
 
         fields = ('opponent_id', 'amount', 'game_id', 'wagyr_id',)
 
@@ -81,8 +80,9 @@ class createWagyrbyGame(forms.ModelForm):
         )
 
     def save(self, request, commit=True):
-        wagyr= super(createWagyrbyGame, self).save(commit=False)
-        import pdb; pdb.set_trace()
+        wagyr = super(createWagyrbyGame, self).save(commit=False)
+        import pdb;
+        pdb.set_trace()
         wagyr.wagyr_id = self.cleaned_data['wagyr_id']
         wagyr.self_id = request.user.username
         wagyr.opponent_id = self.cleaned_data['opponent_id']
@@ -95,7 +95,6 @@ class createWagyrbyGame(forms.ModelForm):
 
 
 class UserCreateForm(UserCreationForm):
-
     username = forms.CharField(
         label="Username",
         required=True,
@@ -107,7 +106,7 @@ class UserCreateForm(UserCreationForm):
         label="First Name",
         max_length=30,
         required=True,
-        widget = forms.TextInput(attrs={'placeholder': 'John'}),
+        widget=forms.TextInput(attrs={'placeholder': 'John'}),
     )
     last_name = forms.CharField(
         label="Last Name",
@@ -118,7 +117,7 @@ class UserCreateForm(UserCreationForm):
     email = forms.EmailField(
         label="Email",
         required=False,
-        widget = forms.TextInput(attrs={'placeholder': 'johnsmith@example.com'}),
+        widget=forms.TextInput(attrs={'placeholder': 'johnsmith@example.com'}),
     )
 
     class Meta:
@@ -131,9 +130,6 @@ class UserCreateForm(UserCreationForm):
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.is_staff = False
-
-        if self.cleaned_data["is_staff"] == "True":
-            user.is_staff = True
 
         if commit:
             user.save()
@@ -163,7 +159,6 @@ class UserCreateForm(UserCreationForm):
 
 
 class CrispyPasswordChangeForm(PasswordChangeForm):
-
     def __init__(self, *args, **kwargs):
         super(CrispyPasswordChangeForm, self).__init__(*args, **kwargs)
 
@@ -185,7 +180,6 @@ class CrispyPasswordChangeForm(PasswordChangeForm):
 
 
 class LoginForm(AuthenticationForm):
-
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
 

@@ -219,7 +219,7 @@ def wagyrs(request):
     return render(request, 'bootstrap/wagyr.html')
 
 
-class MakeWagyr(TemplateView):
+class MakeWagyr(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         game_id = request.GET['game_id']
         obj = Game.objects.get(pk=game_id)
@@ -303,6 +303,7 @@ def search_reg(request):
         return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages, 'errors': len(err)})
 
 
+@login_required()
 def search_post(request):
     start = time.time()
 
