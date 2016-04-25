@@ -1,5 +1,5 @@
 import requests
-from app.models import Game, Venue, Team
+from app.models import Game, Venue, Team, Wagyr
 import time
 from django.core.cache import cache
 from django.utils import timezone
@@ -62,7 +62,7 @@ def get_games(Team, messages, err):
 
     for g in data["games"]:
         if Team.name in g["away"]["name"] or Team.name in g["home"]["name"]:
-            if g["status"] != "closed":
+            if g["status"]: #!= "closed":
                 count += 1
 
                 # Check for non US
@@ -243,3 +243,46 @@ def get_daily_sched():
             }
         )
     return count
+
+
+def check_game_winner(wagyr, user):
+    boxscore_url = "http://api.sportradar.us/nba-t3/games/" + str(wagyr.game_id.event_id) + "/boxscore.json"
+    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+    try:
+        boxscore_response = requests.get(boxscore_url, params)
+        data = boxscore_response.json()
+        cache.set('daily_schedule', data)
+    except ValueError as e:
+        print(e)
+        time.sleep(1)
+        boxscore_response = requests.get(boxscore_url, params)
+        data = boxscore_response.json()
+        cache.set('daily_schedule', data)
+        pass
+
+    if data['status'] == 'closed':
+        print("game over, update the wagyr")
+        # determine the winner of the wagyr
+        if data['home']['points'] > data['away']['points']:
+            winner = data['home']['name']
+        else:
+            winner = data['away']['name']
+
+        if wagyr.self_id.username == user.username:
+            if winner.title() in wagyr.self_team.title():
+                wagyr.wagyr_winner = user
+                wagyr.status = wagyr.PENDING_OPPONENT
+                wagyr.save()
+            else:
+                wagyr.wagyr_winner = wagyr.opponent_id
+                wagyr.status = wagyr.PENDING_SELF
+                wagyr.save()
+        else:
+            if winner.title() in wagyr.self_team.title():
+                wagyr.wagyr_winner = wagyr.opponent_id
+                wagyr.status = wagyr.PENDING_SELF
+                wagyr.save()
+            else:
+                wagyr.wagyr_winner = user
+                wagyr.status = wagyr.PENDING_OPPONENT
+                wagyr.save()

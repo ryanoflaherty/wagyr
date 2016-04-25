@@ -4,7 +4,7 @@ from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreate
 from app.models import Game, Team, Wagyr
 from django.db.models import Q
 from app.services import api_query_sched, check_sched_loaded
-from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post, get_daily_sched
+from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post, get_daily_sched, check_game_winner
 import time
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, FormView
@@ -134,6 +134,7 @@ class PaymentView(LoginRequiredMixin, StripeMixin, FormView):
                 source=token,
                 description="Wagyr Charge"
             )
+
             return super(PaymentView, self).form_valid(form)
         except stripe.error.CardError as e:
             # The card has been declined
@@ -211,13 +212,17 @@ def contact(request):
 @login_required()
 def profile(request):
     user = User.objects.get(username=request.user.username)
-    return render(request, 'bootstrap/profile.html', {'user': user})
+    wagyrs = Wagyr.objects.filter(Q(self_id=user) | Q(opponent_id=user)).count()
+    return render(request, 'bootstrap/profile.html', {'user': user, 'wagyr_count': wagyrs})
 
 
 @login_required()
 def wagyrs(request):
     user = request.user
     wagyrs = Wagyr.objects.filter(Q(self_id=user) | Q(opponent_id=user))
+    for wagyr in wagyrs:
+        if wagyr.status == 1:
+            check_game_winner(wagyr, user)
     return render(request, 'bootstrap/wagyr.html', {'user': user, 'wagyrs': wagyrs})
 
 

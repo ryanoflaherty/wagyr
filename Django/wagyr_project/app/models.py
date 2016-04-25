@@ -116,7 +116,7 @@ class Wagyr(models.Model):
         (PENDING_OPPONENT, 'Pending Opponent'),
         (FULFILLED, 'Fulfilled'),
     )
-    wagyr_id = models.CharField(max_length=255, primary_key=True, db_column='id')
+    wagyr_id = models.AutoField(primary_key=True, db_column='id')
     self_id = models.ForeignKey(User, to_field='username', related_name='self_id_wagyr', default=0)
     opponent_id = models.ForeignKey(User, to_field='username', related_name='opponent_id_wagyr', default=0)
     game_id = models.ForeignKey(Game, to_field='event_id', related_name='game_wagyr', default=0)
