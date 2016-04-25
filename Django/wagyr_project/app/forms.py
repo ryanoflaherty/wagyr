@@ -94,7 +94,6 @@ class createWagyrbyGame(forms.ModelForm):
         return wagyr
 
 
-
 class UserCreateForm(UserCreationForm):
 
     username = forms.CharField(
@@ -121,17 +120,10 @@ class UserCreateForm(UserCreationForm):
         required=False,
         widget = forms.TextInput(attrs={'placeholder': 'johnsmith@example.com'}),
     )
-    is_staff = forms.ChoiceField(
-        widget=forms.Select(),
-        label="Admin user",
-        required=True,
-        help_text="Will this user be an administrator of this site/application?",
-        choices=((True, "Yes"),(False, "No"))
-    )
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2", "first_name", "last_name", "is_staff")
+        fields = ("username", "email", "password1", "password2", "first_name", "last_name")
 
     def save(self, commit=True):
         user = super(UserCreateForm, self).save(commit=False)
@@ -165,7 +157,6 @@ class UserCreateForm(UserCreationForm):
             'first_name',
             'last_name',
             'email',
-            InlineRadios('is_staff'),
             'password1',
             'password2',
         )
