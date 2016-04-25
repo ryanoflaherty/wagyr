@@ -192,6 +192,11 @@ def index(request):
 def welcome(request):
     games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
                                 date__gt=timezone.now())
+
+    if games.count() < 3:
+        get_daily_sched()
+        games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
+                                    date__gt=timezone.now())
     return render(request, 'bootstrap/welcome.html', {'games': games})
 
 
