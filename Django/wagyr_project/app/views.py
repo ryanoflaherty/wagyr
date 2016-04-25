@@ -250,12 +250,20 @@ class MakeWagyr(LoginRequiredMixin, TemplateView):
                        'awayLocation': awayLocation, 'homeTeam': homeTeam, 'awayTeam': awayTeam})
 
     def post(self, request):
-        username = request.user.username
+        username = request.user
         game_id = request.POST.get('game_id')
-        form = createWagyrbyGame(request.POST, initial={'self_id': username, 'game_id': game_id, 'wagyr_id': 0})
+        form = createWagyrbyGame(request.POST, user=request.user, initial={'self_id': username, 'game_id': game_id})
         if form.is_valid():
-            form.save(request)
-            return render(request, 'bootstrap/index.html')
+            #form.save(request)
+            import pdb; pdb.set_trace()
+            wagyr = Wagyr.objects.create(
+                            self_id=form.user,
+                            opponent_id=form.cleaned_data['opponent_id'],
+                            game_id=Game.objects.get(pk=game_id),
+                            amount=form.cleaned_data['amount'],
+                            self_team=form.cleaned_data['self_team'],
+            )
+            return redirect('/')
         else:
             print(form.errors)
             return render(request, 'bootstrap/index.html')

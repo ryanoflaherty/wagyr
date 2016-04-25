@@ -36,18 +36,25 @@ class searchGamebyTeam(forms.ModelForm):
 
 
 class createWagyrbyGame(forms.ModelForm):
-    opponent_id = forms.CharField(
+    opponent_id = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
         label='Opponent',
-        widget=forms.TextInput(attrs={'placeholder': 'username'}),
-        max_length=100,
+        #max_length=100,
         required=True,
     )
+
     amount = forms.DecimalField(
         label='Amount', required=True
     )
     wagyr_id = forms.CharField(
         label="ID",
-        widget=forms.TextInput(attrs={'placeholder': 'username'}),
+        #widget=forms.TextInput(attrs={'placeholder': 'username'}),
+        max_length=100,
+        required=True,
+    )
+
+    self_team = forms.CharField(
+        label="Team",
         max_length=100,
         required=True,
     )
@@ -59,10 +66,17 @@ class createWagyrbyGame(forms.ModelForm):
             'game_id': forms.HiddenInput(),
         }
 
-        fields = ('opponent_id', 'amount', 'game_id', 'wagyr_id',)
+        fields = ('opponent_id', 'amount', 'game_id', 'wagyr_id', 'self_team',)
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(createWagyrbyGame, self).__init__(*args, **kwargs)
+        self.fields['opponent_id']=forms.ModelChoiceField(queryset=User.objects.all(), 
+                        label = 'Opponent', 
+			required=True
+	)
+
+
         # Crispy Forms Helper
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -82,9 +96,9 @@ class createWagyrbyGame(forms.ModelForm):
         wagyr = super(createWagyrbyGame, self).save(commit=False)
         import pdb;
         pdb.set_trace()
-        wagyr.wagyr_id = self.cleaned_data['wagyr_id']
-        wagyr.self_id = request.user.username
-        wagyr.opponent_id = self.cleaned_data['opponent_id']
+        #wagyr.wagyr_id = self.cleaned_data['wagyr_id']
+        #wagyr.self_id = User.objects.get(username=str(request.user.username))
+        #wagyr.opponent_id = User.objects.get(id=self.cleaned_data['opponent_id'])
         wagyr.game_id = self.cleaned_data["game_id"]
         wagyr.amount = self.cleaned_data['amount']
 
