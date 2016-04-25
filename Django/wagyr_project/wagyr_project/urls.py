@@ -36,3 +36,11 @@ urlpatterns += [
     url(r'^accounts/register/$', views.CreateUser.as_view(), name='register'),
     url(r'^accounts/register/done/$', views.user_create_done, name='register-done'),
 ]
+
+# Payments
+urlpatterns += [
+    url(r'^payment_successful/$', views.PaymentView.as_view(), name='payment_successful'),
+    url(r'^received_thank_you/$', views.Received_SuccessView.as_view(), name='received_thank_you'),
+    url(r'^thank_you/$', views.SuccessView.as_view(), name='thank_you'),
+    url(r'^receive_payment_successful/$', views.ReceivePaymentView.as_view(), name='receive_payment_successful'),
+]

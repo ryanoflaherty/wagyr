@@ -12,7 +12,7 @@
     <title>Wagyr | {% block title %}{% endblock%} </title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link href="/static/bootstrap/css/logo-nav.css" rel="stylesheet">
@@ -23,6 +23,11 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    {% block head %}
+    {% endblock head %}
 
 </head>
 
@@ -98,11 +103,8 @@
     </div>
     <!-- /.container -->
 
-    <!-- jQuery -->
-    <script src="/static/bootstrap/js/jquery.js"></script>
-
     <!-- Bootstrap Core JavaScript -->
-    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 </body>
 

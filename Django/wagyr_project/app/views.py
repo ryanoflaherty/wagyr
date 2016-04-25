@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
-from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm
+from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm
 from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
 import time
 from django.contrib.auth.decorators import login_required
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 from django.contrib.auth import login as login_user, logout as logout_user, authenticate
 from braces.views import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse_lazy
+import stripe
 from django.contrib.auth import update_session_auth_hash
 
 
@@ -42,7 +44,6 @@ def logout(request):
 
 class CreateUser(TemplateView):
     template_name = 'bootstrap/registration_form.html'
-    raise_exception = True
 
     def get(self, request, *args, **kwargs):
         form = UserCreateForm()
@@ -74,6 +75,82 @@ def user_create_done(request):
         return redirect('/accounts/login/')
 
 
+# Stripe Payments
+#####################################################
+class StripeMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(StripeMixin, self).get_context_data(**kwargs)
+        context['publishable_key'] = "pk_test_GQYJHTl83M2zVUICU8unRENH" #change to live publishable key
+        return context
+
+
+class SuccessView(LoginRequiredMixin, TemplateView):
+    template_name = 'bootstrap/payment_successful.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
+class PaymentView(LoginRequiredMixin, StripeMixin, FormView):
+    # Wagyr loser does this
+    template_name = 'bootstrap/payment.html'
+    form_class = StripeForm
+    success_url = reverse_lazy('thank_you')
+
+    def form_valid(self, form):
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+
+        token = self.request.POST['stripe_token']
+
+        try:
+          stripe.Charge.create(
+              amount= 1000, # amount in cents
+              currency="usd",
+              source=token,
+              description="Wagyr Charge"
+          )
+          return super(PaymentView, self).form_valid(form)
+        except stripe.error.CardError as e:
+            # The card has been declined
+            print(e)
+            pass
+
+
+class Received_SuccessView(LoginRequiredMixin, TemplateView):
+    template_name = 'bootstrap/received_payment_successful.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
+class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
+    # Wagyr winner does this
+    template_name = 'bootstrap/receive_payment.html' # it's the same form for making a payment!
+    form_class = StripeForm
+    success_url = reverse_lazy('received_thank_you')
+
+    def form_valid(self, form):
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+
+        token = self.request.POST['stripe_token']
+        # TODO Get user from the wagyr
+        recipient = stripe.Recipient.create(
+          name="John Doe", #str(User.first_name) + str(User.last_name)
+          type="individual",
+          email="payee@example.com", #str(User_email)
+          card=token
+        )
+        transfer = stripe.Transfer.create(
+            amount=1000,
+            currency="usd",
+            recipient=recipient.id,
+            statement_descriptor="WAGYR",
+        )
+        return super(ReceivePaymentView, self).form_valid(form)
+
+
+# HTML Views
+#########################################################
 def index(request):
     return render(request, 'bootstrap/index.html')
 
