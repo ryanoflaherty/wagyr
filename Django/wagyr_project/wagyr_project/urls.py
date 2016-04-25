@@ -23,7 +23,6 @@ urlpatterns = [
     url(r'^contact', views.contact, name='contact'),  # Home Page
     url(r'^admin', admin.site.urls),   # Admin Portal
     url(r'^wagyrs', views.wagyrs, name='wagyrs'),
-    url(r'^search-by-team', views.searchByTeam, name='searchByTeam'),
     url(r'^make-wagyr', views.MakeWagyr.as_view(), name='make-wagyr'),
     url(r'^search/$', views.search, name='search'),
 ]
@@ -35,6 +34,8 @@ urlpatterns += [
     url(r'^accounts/profile', views.profile, name='profile'),
     url(r'^accounts/register/$', views.CreateUser.as_view(), name='register'),
     url(r'^accounts/register/done/$', views.user_create_done, name='register-done'),
+    url(r'^accounts/password_change/$', views.PasswordChange.as_view(), name='change-password'),
+    url(r'^accounts/password_change/done/$', views.password_change_done, name='change-password-done'),
 ]
 
 # Payments

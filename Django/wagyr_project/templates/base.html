@@ -68,8 +68,11 @@
                         <ul class="dropdown-menu">
                             <li><a href="/accounts/profile">Profile</a></li>
                             <li><a href="/wagyrs">My Wagyrs</a></li>
+                            {% if user.is_superuser %}
                             <li><a href="/admin">Admin Portal</a></li>
+                            {% endif %}
                             <li class="divider"></li>
+                            <li><a href="/accounts/password_change/">Change Password</a></li>
                             <li><a href="/accounts/logout/">Logout</a></li>
                         </ul>
                     </li>

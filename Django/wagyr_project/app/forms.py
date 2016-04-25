@@ -9,7 +9,6 @@ from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, Us
 
 class searchGamebyTeam(forms.ModelForm):
     team = forms.CharField(
-        label='Search for your favorite team',
         widget=forms.TextInput(attrs={'placeholder': 'Team Name'}),
         max_length=100,
         required=True,
@@ -24,9 +23,9 @@ class searchGamebyTeam(forms.ModelForm):
         # Crispy Forms Helper
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.helper.form_show_labels = False
         self.helper.form_class = 'form-horizontal'
-        self.helper.label_class = 'col-md-3'
-        self.helper.field_class = 'col-md-8'
+        self.helper.field_class = 'col-md-12'
         self.helper.form_id = "search-form"
         self.helper.form_method = "post"
         self.helper.form_action = "/search/"

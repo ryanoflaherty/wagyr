@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm
+from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm, CrispyPasswordChangeForm
 from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, get_create_team, check_sched_loaded
@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse_lazy
 import stripe
 from django.contrib.auth import update_session_auth_hash
+from django.utils import timezone
 
 
 # User Login and Register
@@ -73,6 +74,28 @@ def user_create_done(request):
         return render(request, 'bootstrap/registration_complete.html', {'new_user': user, 'is_new': is_new})
     else:
         return redirect('/accounts/login/')
+
+
+class PasswordChange(LoginRequiredMixin, TemplateView):
+    template_name = 'bootstrap/password_change_form.html'
+
+    def get(self, request, *args, **kwargs):
+        password_change_form = CrispyPasswordChangeForm(request.user)
+        return render(request, self.template_name, {'password_change_form': password_change_form})
+
+    def post(self, request):
+        form = CrispyPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect('/accounts/password_change/done/')
+        else:
+            return render(request, self.template_name, {'password_change_form': form})
+
+
+@login_required()
+def password_change_done(request):
+    return render(request, 'bootstrap/password_change_done.html')
 
 
 # Stripe Payments
@@ -152,7 +175,9 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
 # HTML Views
 #########################################################
 def index(request):
-    return render(request, 'bootstrap/index.html')
+    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1), date__gt=timezone.now()-timezone.timedelta(days=20))
+    form = searchGamebyTeam()
+    return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form})
 
 
 def about(request):
@@ -184,16 +209,6 @@ class MakeWagyr(TemplateView):
 	form = createWagyrbyGame(request.POST)
 	if form.is_valid():
 '''
-		
-
-
-
-
-
-# @login_required()
-def searchByTeam(request):
-    form = searchGamebyTeam()
-    return render(request, 'bootstrap/team_schedule.html', {'search_form': form})
 
 
 # @login_required()

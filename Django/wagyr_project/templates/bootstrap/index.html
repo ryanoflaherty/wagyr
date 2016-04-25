@@ -1,13 +1,63 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}
 Home page
 {% endblock %}
 
 {% block h1 %}
-Home Page
+Welcome{% if user.is_authenticated %}, {{ user.first_name }}{% endif %}
 {% endblock %}
 
 {% block body %}
-<a href="/search-by-team">Search for a schedule by your favorite team!</a>
+<div class="row">
+    <div class="col-md-9">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Games Coming Up</h3>
+            </div>
+            <div class="panel-body">
+                <table width="100%" class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Home Team</th>
+                            <th>Away Team</th>
+                            <th>Venue</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for game in games %}
+                        <tr>
+                            <td>{{ game.home_team }} ({{ game.home_team.wins }} - {{ game.home_team.losses }})</td>
+                            <td>{{ game.away_team }} ({{ game.away_team.wins }} - {{ game.away_team.losses }})</td>
+                            <td>{{ game.venue }}</td>
+                            <td>{{ game.date|time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Search for your Favorite Team!</h3>
+            </div>
+            <div class="panel-body">
+                <form id="search-form" class="form-horizontal" action="/search/" method="POST" novalidate>
+                    {% csrf_token %}
+                    {% crispy search_form %}
+                    <div class="form-group">
+                        <div class="controls col-md-8">
+                            <input type="submit" name="submit" value="Submit" class="btn btn-success">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
