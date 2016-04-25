@@ -42,11 +42,9 @@ class createWagyrbyGame(forms.ModelForm):
         max_length=100,
         required=True,
     )
-
     amount = forms.DecimalField(
         label='Amount', required=True
     )
-
     wagyr_id = forms.CharField(
         label="ID",
         widget=forms.TextInput(attrs={'placeholder': 'username'}),
@@ -76,7 +74,8 @@ class createWagyrbyGame(forms.ModelForm):
         self.helper.form_action = "/make-wagyr"
 
         self.helper.layout = Layout(
-            'opponent_id', 'amount',
+            'opponent_id',
+            'amount',
         )
 
     def save(self, request, commit=True):

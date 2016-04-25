@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm, \
     CrispyPasswordChangeForm
-from app.models import Game, Team
+from app.models import Game, Team, Wagyr
 from django.db.models import Q
 from app.services import api_query_sched, check_sched_loaded
 from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post, get_daily_sched
@@ -216,6 +216,9 @@ def profile(request):
 
 @login_required()
 def wagyrs(request):
+    user = request.user.username
+    wagyrs = Wagyr.objects.filter(Q(self_id__username=user) | Q(opponent_id__name=user))
+    import pdb; pdb.set_trace()
     return render(request, 'bootstrap/wagyr.html')
 
 
