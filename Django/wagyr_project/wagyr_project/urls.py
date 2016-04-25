@@ -25,7 +25,8 @@ urlpatterns = [
     url(r'^admin', admin.site.urls),   # Admin Portal
     url(r'^wagyrs', views.wagyrs, name='wagyrs'),
     url(r'^make-wagyr', views.MakeWagyr.as_view(), name='make-wagyr'),
-    url(r'^search/$', views.search, name='search'),
+    url(r'^search/$', views.search_reg, name='search-reg'),
+    url(r'^search_post/$', views.search_post, name='search-post'),
 ]
 
 # Auth

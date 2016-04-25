@@ -28,7 +28,7 @@ class searchGamebyTeam(forms.ModelForm):
         self.helper.field_class = 'col-md-12'
         self.helper.form_id = "search-form"
         self.helper.form_method = "post"
-        self.helper.form_action = "/search/"
+        self.helper.form_action = "/search_post/"
 
         self.helper.layout = Layout(
             'team',

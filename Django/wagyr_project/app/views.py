@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
-from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm, CrispyPasswordChangeForm
+from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreateForm, StripeForm, \
+    CrispyPasswordChangeForm
 from app.models import Game, Team
 from django.db.models import Q
-from app.services import api_query_sched, get_create_team, check_sched_loaded
+from app.services import api_query_sched, check_sched_loaded
+from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post
 import time
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, FormView
@@ -10,10 +12,9 @@ from django.contrib.auth import login as login_user, logout as logout_user, auth
 from braces.views import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse_lazy
-#import stripe
+import stripe
 from django.contrib.auth import update_session_auth_hash
 from django.utils import timezone
-#import pdb
 
 
 # User Login and Register
@@ -104,7 +105,7 @@ def password_change_done(request):
 class StripeMixin(object):
     def get_context_data(self, **kwargs):
         context = super(StripeMixin, self).get_context_data(**kwargs)
-        context['publishable_key'] = "pk_test_GQYJHTl83M2zVUICU8unRENH" #change to live publishable key
+        context['publishable_key'] = "pk_test_GQYJHTl83M2zVUICU8unRENH"  # change to live publishable key
         return context
 
 
@@ -122,18 +123,18 @@ class PaymentView(LoginRequiredMixin, StripeMixin, FormView):
     success_url = reverse_lazy('thank_you')
 
     def form_valid(self, form):
-        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat"  # change to live secret key
 
         token = self.request.POST['stripe_token']
 
         try:
-          stripe.Charge.create(
-              amount= 1000, # amount in cents
-              currency="usd",
-              source=token,
-              description="Wagyr Charge"
-          )
-          return super(PaymentView, self).form_valid(form)
+            stripe.Charge.create(
+                amount=1000,  # amount in cents
+                currency="usd",
+                source=token,
+                description="Wagyr Charge"
+            )
+            return super(PaymentView, self).form_valid(form)
         except stripe.error.CardError as e:
             # The card has been declined
             print(e)
@@ -149,20 +150,20 @@ class Received_SuccessView(LoginRequiredMixin, TemplateView):
 
 class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
     # Wagyr winner does this
-    template_name = 'bootstrap/receive_payment.html' # it's the same form for making a payment!
+    template_name = 'bootstrap/receive_payment.html'  # it's the same form for making a payment!
     form_class = StripeForm
     success_url = reverse_lazy('received_thank_you')
 
     def form_valid(self, form):
-        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat"  # change to live secret key
 
         token = self.request.POST['stripe_token']
         # TODO Get user from the wagyr
         recipient = stripe.Recipient.create(
-          name="John Doe", #str(User.first_name) + str(User.last_name)
-          type="individual",
-          email="payee@example.com", #str(User_email)
-          card=token
+            name="John Doe",  # str(User.first_name) + str(User.last_name)
+            type="individual",
+            email="payee@example.com",  # str(User_email)
+            card=token
         )
         transfer = stripe.Transfer.create(
             amount=1000,
@@ -177,7 +178,8 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
 #########################################################
 @login_required(login_url='/welcome', redirect_field_name='')
 def index(request):
-    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1), date__gt=timezone.now()-timezone.timedelta(days=20))
+    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
+                                date__gt=timezone.now() - timezone.timedelta(days=20))
     form = searchGamebyTeam()
     return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form})
 
@@ -208,50 +210,50 @@ def wagyrs(request):
 
 
 class MakeWagyr(TemplateView):
-
     def get(self, request, *args, **kwargs):
         game_id = request.GET['game_id']
         obj = Game.objects.get(pk=game_id)
         split = obj.home_team.name.split(' ')
         if len(split) > 2:
-                homeLocation = split[0] + ' ' + split[1]
-                homeTeam = split[2]
+            homeLocation = split[0] + ' ' + split[1]
+            homeTeam = split[2]
         else:
-                homeLocation = split[0]
-                homeTeam = split[1]
+            homeLocation = split[0]
+            homeTeam = split[1]
         split = obj.away_team.name.split(' ')
         if len(split) > 2:
-                awayLocation = split[0] + ' ' + split[1]
-                awayTeam = split[2]
+            awayLocation = split[0] + ' ' + split[1]
+            awayTeam = split[2]
         else:
-                awayLocation = split[0]
-                awayTeam = split[1]
+            awayLocation = split[0]
+            awayTeam = split[1]
         form = createWagyrbyGame()
-        return render(request, 'bootstrap/make_wagyr.html', {'create_wagyr_form': form, 'game': obj, 'homeLocation': homeLocation, 'awayLocation': awayLocation, 'homeTeam': homeTeam, 'awayTeam': awayTeam})
+        return render(request, 'bootstrap/make_wagyr.html',
+                      {'create_wagyr_form': form, 'game': obj, 'homeLocation': homeLocation,
+                       'awayLocation': awayLocation, 'homeTeam': homeTeam, 'awayTeam': awayTeam})
 
     def post(self, request):
-        import pdb; pdb.set_trace()
         username = request.user.username
         game_id = request.POST.get('game_id')
-        form = createWagyrbyGame(request.POST, initial={'self_id':username, 'game_id':game_id, 'wagyr_id': 0})
+        form = createWagyrbyGame(request.POST, initial={'self_id': username, 'game_id': game_id, 'wagyr_id': 0})
         if form.is_valid():
-               form.save(request)
-               return render(request, 'bootstrap/index.html')
+            form.save(request)
+            return render(request, 'bootstrap/index.html')
         else:
-               print (form.errors)
-               return render(request, 'bootstrap/index.html')
-		
+            print(form.errors)
+            return render(request, 'bootstrap/index.html')
 
-# @login_required()
+
+@login_required()
 def searchByTeam(request):
     form = searchGamebyTeam()
     return render(request, 'bootstrap/team_schedule.html', {'search_form': form})
 
 
-# @login_required()
-def search(request):
+@login_required()
+def search_reg(request):
     start = time.time()
-    #pdb.set_trace()
+
     search_term = request.POST['team'].title()
 
     messages = []
@@ -268,7 +270,6 @@ def search(request):
         Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
 
     if not games:
-        pdb.set_trace()
         api_query = api_query_sched(search_term, messages, err)
 
         if api_query:
@@ -286,6 +287,42 @@ def search(request):
             return render(request, 'bootstrap/results.html', {'debug': messages, 'errors': len(err)})
     else:
         check_sched_loaded(games[0].get_search_team(search_term), messages, err)
+        messages.append("Found " + str(games.count()) + " in our database")
+        end = time.time()
+        messages.append("Time elapsed = " + str(end - start) + " seconds")
+        return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages, 'errors': len(err)})
+
+
+def search_post(request):
+    start = time.time()
+
+    search_term = request.POST['team'].title()
+
+    messages = []
+    err = []
+    messages.append("Querying internal DB for Playoff Games that the " + str(search_term) + " are playing in")
+
+    games = Game.objects.select_related('home_team', 'away_team').filter(
+        Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
+
+    if not games:
+        api_query = aqs_post(search_term, messages, err)
+
+        if api_query:
+            messages.append("Found " + str(api_query) + " results for future games")
+            games = Game.objects.filter(
+                Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
+            end = time.time()
+            messages.append("Time elapsed = " + str(end - start) + " seconds")
+            return render(request, 'bootstrap/results.html', {'games': games, 'debug': messages, 'errors': len(err)})
+
+        else:
+            messages.append("Error getting schedule")
+            end = time.time()
+            messages.append("Time elapsed = " + str(end - start) + " seconds")
+            return render(request, 'bootstrap/results.html', {'debug': messages, 'errors': len(err)})
+    else:
+        csl_post(games[0].get_search_team(search_term), messages, err)
         messages.append("Found " + str(games.count()) + " in our database")
         end = time.time()
         messages.append("Time elapsed = " + str(end - start) + " seconds")

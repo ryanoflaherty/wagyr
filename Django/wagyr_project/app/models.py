@@ -1,21 +1,23 @@
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.contrib.auth.models import User
 
-'''
-from django.contrib.auth import User
-'''
 
 class Wagyr(models.Model):
-        wagyr_id=models.CharField(max_length=255, primary_key=True ,db_column='id')
-        self_id=models.CharField(max_length=255, null=True)
-        opponent_id=models.CharField(max_length=255, null=True)
-        game_id=models.CharField(max_length=255, null=True)
-        amount=models.IntegerField(null=True)
-	
-        class Meta:
-                managed = True
-                db_table = 'wagyr'
+    wagyr_id = models.CharField(max_length=255, primary_key=True, db_column='id')
+    self_id = models.CharField(max_length=255, null=True)
+    opponent_id = models.CharField(max_length=255, null=True)
+    game_id = models.CharField(max_length=255, null=True)
+    amount = models.IntegerField(null=True)
+
+    def __unicode__(self):
+        return self.self_id + ' vs ' + self.opponent_id
+
+    class Meta:
+        managed = True
+        db_table = 'wagyr'
+
 
 class Venue(models.Model):
     venue_id = models.CharField(max_length=255, primary_key=True)
@@ -60,6 +62,17 @@ class Team(models.Model):
 
         return fetched
 
+    def is_pst_sched_loaded(self):
+        games_left = 10 - (self.wins + self.losses)
+        games_in_db = Game.objects.filter(Q(home_team__name=self.name) | Q(away_team__name=self.name)).count()
+
+        if games_left > games_in_db:
+            fetched = False
+        else:
+            fetched = True
+
+        return fetched
+
     def get_record(self):
         self.wins = 40
         self.losses = 30
@@ -75,7 +88,7 @@ class Team(models.Model):
 
 class Player(models.Model):
     player_id = models.CharField(max_length=255, primary_key=True)
-    fname= models.CharField(max_length=255)
+    fname = models.CharField(max_length=255)
     lname = models.CharField(max_length=255)
     team = models.ForeignKey(Team, db_column='team', related_name='players')
 
@@ -105,6 +118,7 @@ class Game(models.Model):
         managed = True
         db_table = 'game'
         ordering = ['date']
+
 
 '''
 class Wagyr(models.Model):
