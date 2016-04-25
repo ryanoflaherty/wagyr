@@ -174,10 +174,17 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
 
 # HTML Views
 #########################################################
+@login_required(login_url='/welcome', redirect_field_name='')
 def index(request):
     games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1), date__gt=timezone.now()-timezone.timedelta(days=20))
     form = searchGamebyTeam()
     return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form})
+
+
+def welcome(request):
+    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
+                                date__gt=timezone.now() - timezone.timedelta(days=20))
+    return render(request, 'bootstrap/welcome.html', {'games': games})
 
 
 def about(request):
