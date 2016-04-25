@@ -254,8 +254,6 @@ class MakeWagyr(LoginRequiredMixin, TemplateView):
         game_id = request.POST.get('game_id')
         form = createWagyrbyGame(request.POST, user=request.user, initial={'self_id': username, 'game_id': game_id})
         if form.is_valid():
-            #form.save(request)
-            import pdb; pdb.set_trace()
             wagyr = Wagyr.objects.create(
                             self_id=form.user,
                             opponent_id=form.cleaned_data['opponent_id'],

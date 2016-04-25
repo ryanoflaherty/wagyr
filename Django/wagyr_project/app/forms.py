@@ -46,13 +46,6 @@ class createWagyrbyGame(forms.ModelForm):
     amount = forms.DecimalField(
         label='Amount', required=True
     )
-    '''
-    wagyr_id = forms.CharField(
-        label="ID",
-        #widget=forms.TextInput(attrs={'placeholder': 'username'}),
-        max_length=100,
-        required=True,
-    )'''
 
     self_team = forms.CharField(
         label="Team",
