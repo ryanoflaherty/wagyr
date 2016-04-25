@@ -4,7 +4,7 @@ from app.forms import searchGamebyTeam, createWagyrbyGame, LoginForm, UserCreate
 from app.models import Game, Team
 from django.db.models import Q
 from app.services import api_query_sched, check_sched_loaded
-from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post
+from app.services_post import api_query_sched as aqs_post, check_sched_loaded as csl_post, get_daily_sched
 import time
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, FormView
@@ -179,14 +179,19 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
 @login_required(login_url='/welcome', redirect_field_name='')
 def index(request):
     games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                date__gt=timezone.now() - timezone.timedelta(days=20))
+                                date__gt=timezone.now())
+    if games.count() < 3:
+        get_daily_sched()
+        games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
+                                    date__gt=timezone.now())
+
     form = searchGamebyTeam()
     return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form})
 
 
 def welcome(request):
     games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                date__gt=timezone.now() - timezone.timedelta(days=20))
+                                date__gt=timezone.now())
     return render(request, 'bootstrap/welcome.html', {'games': games})
 
 

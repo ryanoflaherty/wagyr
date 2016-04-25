@@ -2,6 +2,7 @@ import requests
 from app.models import Game, Venue, Team
 import time
 from django.core.cache import cache
+from django.utils import timezone
 
 
 def check_sched_loaded(Team, messages, err):
@@ -181,3 +182,64 @@ def get_create_team(search_term, messages, err):
                     return newTeam, created
 
 
+def get_daily_sched():
+    print("get_daily_sched")
+    today = timezone.now()
+
+    data = cache.get('daily_schedule')
+    if not data:
+        daily_sched_url = "http://api.sportradar.us/nba-t3/games/2016/" + str(today.month) + "/" + str(today.day) + "/schedule.json"
+        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        try:
+            daily_sched_response = requests.get(daily_sched_url, params)
+            data = daily_sched_response.json()
+            cache.set('daily_schedule', data)
+        except ValueError as e:
+            print(e)
+            time.sleep(1)
+            daily_sched_response = requests.get(daily_sched_url, params)
+            data = daily_sched_response.json()
+            cache.set('daily_schedule', data)
+            pass
+    else:
+        print("using cached data")
+
+    count = 0
+
+    for g in data["games"]:
+        count += 1
+
+        # Check for non US
+        if not g["venue"]["country"] == 'USA':
+            g["venue"]["zip"] = ''
+            g["venue"]["state"] = ''
+
+        # Save Venue first if it does not exist due to Foreign key constraint
+        venue, created = Venue.objects.get_or_create(
+            pk=g["venue"]["id"],
+            defaults={
+                'name': g["venue"]["name"],
+                'capacity': int(g["venue"]["capacity"]),
+                'city': g["venue"]["city"],
+                'zip': g["venue"]["zip"],
+                'country': g["venue"]["country"],
+                'state': g["venue"]["state"],
+                'address': g["venue"]["address"],
+            }
+        )
+        # Check away team to see if it is in the DB. If not, create it
+        away, new = get_create_team(g["away"]["name"], messages=[], err=[])
+        home, new = get_create_team(g["home"]["name"], messages=[], err=[])
+
+        # Create game instance
+        game, created = Game.objects.get_or_create(
+            pk=g["id"],
+            defaults={
+                'date': g["scheduled"],
+                'status': g["status"],
+                'venue': venue,
+                'away_team': away,
+                'home_team': home,
+            }
+        )
+    return count
