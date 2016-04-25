@@ -197,7 +197,8 @@ def contact(request):
 
 @login_required()
 def profile(request):
-    return render(request, 'bootstrap/profile.html')
+    user = User.objects.get(username=request.user.username)
+    return render(request, 'bootstrap/profile.html', {'user': user})
 
 
 @login_required()
