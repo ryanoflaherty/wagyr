@@ -46,12 +46,13 @@ class createWagyrbyGame(forms.ModelForm):
     amount = forms.DecimalField(
         label='Amount', required=True
     )
+    '''
     wagyr_id = forms.CharField(
         label="ID",
         #widget=forms.TextInput(attrs={'placeholder': 'username'}),
         max_length=100,
         required=True,
-    )
+    )'''
 
     self_team = forms.CharField(
         label="Team",
@@ -66,7 +67,7 @@ class createWagyrbyGame(forms.ModelForm):
             'game_id': forms.HiddenInput(),
         }
 
-        fields = ('opponent_id', 'amount', 'game_id', 'wagyr_id', 'self_team',)
+        fields = ('opponent_id', 'amount', 'game_id', 'self_team',)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
