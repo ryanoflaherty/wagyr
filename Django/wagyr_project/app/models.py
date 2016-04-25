@@ -1,16 +1,21 @@
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-from django.contrib.auth.models import User
 
+'''
+from django.contrib.auth import User
+'''
 
-class WagyrUser(User):
-    stripe_id = models.CharField(max_length=255, default="", blank=True)
-
-    class Meta:
-        db_table = 'wagyr_user'
-        managed= True
-
+class Wagyr(models.Model):
+        wagyr_id=models.CharField(max_length=255, primary_key=True ,db_column='id')
+        self_id=models.CharField(max_length=255, null=True)
+        opponent_id=models.CharField(max_length=255, null=True)
+        game_id=models.CharField(max_length=255, null=True)
+        amount=models.IntegerField(null=True)
+	
+        class Meta:
+                managed = True
+                db_table = 'wagyr'
 
 class Venue(models.Model):
     venue_id = models.CharField(max_length=255, primary_key=True)
@@ -70,7 +75,7 @@ class Team(models.Model):
 
 class Player(models.Model):
     player_id = models.CharField(max_length=255, primary_key=True)
-    fname = models.CharField(max_length=255)
+    fname= models.CharField(max_length=255)
     lname = models.CharField(max_length=255)
     team = models.ForeignKey(Team, db_column='team', related_name='players')
 
@@ -100,32 +105,6 @@ class Game(models.Model):
         managed = True
         db_table = 'game'
         ordering = ['date']
-
-
-class Wagyr(models.Model):
-    IN_PROGRESS = 1
-    PENDING_SELF = 2
-    PENDING_OPPONENT = 3
-    FULFILLED = 4
-    WAGYR_STATUS_CHOICES = (
-        (IN_PROGRESS, 'In Progress'),
-        (PENDING_SELF, 'Pending Self'),
-        (PENDING_OPPONENT, 'Pending Opponent'),
-        (FULFILLED, 'Fulfilled'),
-    )
-    wagyr_id = models.CharField(max_length=255, primary_key=True, default=1, db_column='id')
-    self_id = models.ForeignKey(WagyrUser, to_field='username', related_name='self_id_wagyr', default=0)
-    opponent_id = models.ForeignKey(WagyrUser, to_field='username', related_name='opponent_id_wagyr', default=0)
-    game_id = models.ForeignKey(Game, to_field='event_id', related_name='game_wagyr', default=0)
-    amount = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    self_team = models.CharField(max_length=255, null=True, blank=True)
-    opponent_team = models.CharField(max_length=255, null=True, blank=True)
-    wagyr_winner = models.ForeignKey('self', default=None, null=True, blank=True)
-    status = models.IntegerField(choices=WAGYR_STATUS_CHOICES, default=IN_PROGRESS)
-
-    class Meta:
-        managed = True
-        db_table = 'wagyr'
 
 '''
 class Wagyr(models.Model):

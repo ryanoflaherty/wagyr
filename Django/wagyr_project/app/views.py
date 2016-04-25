@@ -10,9 +10,10 @@ from django.contrib.auth import login as login_user, logout as logout_user, auth
 from braces.views import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse_lazy
-import stripe
+#import stripe
 from django.contrib.auth import update_session_auth_hash
 from django.utils import timezone
+#import pdb
 
 
 # User Login and Register
@@ -207,21 +208,50 @@ def wagyrs(request):
 
 
 class MakeWagyr(TemplateView):
+
     def get(self, request, *args, **kwargs):
         game_id = request.GET['game_id']
         obj = Game.objects.get(pk=game_id)
+        split = obj.home_team.name.split(' ')
+        if len(split) > 2:
+                homeLocation = split[0] + ' ' + split[1]
+                homeTeam = split[2]
+        else:
+                homeLocation = split[0]
+                homeTeam = split[1]
+        split = obj.away_team.name.split(' ')
+        if len(split) > 2:
+                awayLocation = split[0] + ' ' + split[1]
+                awayTeam = split[2]
+        else:
+                awayLocation = split[0]
+                awayTeam = split[1]
         form = createWagyrbyGame()
-        return render(request, 'bootstrap/make_wagyr.html', {'create_wagyr_form': form, 'game': obj})
-''' 
+        return render(request, 'bootstrap/make_wagyr.html', {'create_wagyr_form': form, 'game': obj, 'homeLocation': homeLocation, 'awayLocation': awayLocation, 'homeTeam': homeTeam, 'awayTeam': awayTeam})
+
     def post(self, request):
-	form = createWagyrbyGame(request.POST)
-	if form.is_valid():
-'''
+        import pdb; pdb.set_trace()
+        username = request.user.username
+        game_id = request.POST.get('game_id')
+        form = createWagyrbyGame(request.POST, initial={'self_id':username, 'game_id':game_id, 'wagyr_id': 0})
+        if form.is_valid():
+               form.save(request)
+               return render(request, 'bootstrap/index.html')
+        else:
+               print (form.errors)
+               return render(request, 'bootstrap/index.html')
+		
+
+# @login_required()
+def searchByTeam(request):
+    form = searchGamebyTeam()
+    return render(request, 'bootstrap/team_schedule.html', {'search_form': form})
 
 
 # @login_required()
 def search(request):
     start = time.time()
+    #pdb.set_trace()
     search_term = request.POST['team'].title()
 
     messages = []
@@ -238,6 +268,7 @@ def search(request):
         Q(away_team__name__contains=search_term) | Q(home_team__name__contains=search_term))
 
     if not games:
+        pdb.set_trace()
         api_query = api_query_sched(search_term, messages, err)
 
         if api_query:

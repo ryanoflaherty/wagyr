@@ -43,14 +43,26 @@ class createWagyrbyGame(forms.ModelForm):
 	required=True,
     )
     
-    amount = forms.CharField(
-    	label='Amount', max_length=10, required=True
+    amount = forms.DecimalField(
+    	label='Amount', required=True
+    )
+
+    wagyr_id = forms.CharField(
+        label="ID",
+        widget=forms.TextInput(attrs={'placeholder':'username'}),
+        max_length=100,
+        required=True,
     )
 
 
     class Meta:
         model = Wagyr
-        fields = ('opponent_id', 'amount',)
+        widgets = {
+			'self_id':forms.HiddenInput(), 
+			'game_id':forms.HiddenInput(),
+	}
+
+        fields = ('opponent_id', 'amount', 'game_id', 'wagyr_id',)
 
     def __init__(self, *args, **kwargs):
         super(createWagyrbyGame, self).__init__(*args, **kwargs)
@@ -59,14 +71,28 @@ class createWagyrbyGame(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-md-3'
-        self.helper.field_class = 'col-md-6'
+        self.helper.field_class = 'col-md-8'
         self.helper.form_id = "create-wagyr-form"
         self.helper.form_method = "post"
-        self.helper.form_action = "./"
+        self.helper.form_action = "/make-wagyr"
 
         self.helper.layout = Layout(
-            'Opponent',
+            'opponent_id', 'amount',
         )
+
+    def save(self, request, commit=True):
+        wagyr= super(createWagyrbyGame, self).save(commit=False)
+        import pdb; pdb.set_trace()
+        wagyr.wagyr_id = self.cleaned_data['wagyr_id']
+        wagyr.self_id = request.user.username
+        wagyr.opponent_id = self.cleaned_data['opponent_id']
+        wagyr.game_id = self.cleaned_data["game_id"]
+        wagyr.amount = self.cleaned_data['amount']
+
+        if commit:
+            wagyr.save()
+        return wagyr
+
 
 
 class UserCreateForm(UserCreationForm):
@@ -75,6 +101,7 @@ class UserCreateForm(UserCreationForm):
         label="Username",
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'username'}),
+
         help_text="Must be at least 8 characters."
     )
     first_name = forms.CharField(
@@ -94,10 +121,17 @@ class UserCreateForm(UserCreationForm):
         required=False,
         widget = forms.TextInput(attrs={'placeholder': 'johnsmith@example.com'}),
     )
+    is_staff = forms.ChoiceField(
+        widget=forms.Select(),
+        label="Admin user",
+        required=True,
+        help_text="Will this user be an administrator of this site/application?",
+        choices=((True, "Yes"),(False, "No"))
+    )
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2", "first_name", "last_name")
+        fields = ("username", "email", "password1", "password2", "first_name", "last_name", "is_staff")
 
     def save(self, commit=True):
         user = super(UserCreateForm, self).save(commit=False)
@@ -105,6 +139,9 @@ class UserCreateForm(UserCreationForm):
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.is_staff = False
+
+        if self.cleaned_data["is_staff"] == "True":
+            user.is_staff = True
 
         if commit:
             user.save()
@@ -128,6 +165,7 @@ class UserCreateForm(UserCreationForm):
             'first_name',
             'last_name',
             'email',
+            InlineRadios('is_staff'),
             'password1',
             'password2',
         )

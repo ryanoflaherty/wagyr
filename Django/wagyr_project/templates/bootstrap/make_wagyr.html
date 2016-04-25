@@ -10,13 +10,45 @@ Make a Wagyr
 Create A Wagyr
 {% endblock %}
 
+		
 {% block content %}
-<form id="create-wagyr-form" class="form-horizontal" action="./" method="POST" novalidate>
+<style>
+	p.teamFont {
+		margin-top: -20px;
+        	padding-left: 15cm;
+	        font-size: 20px;
+		font-family: "Arial Black", Gadget, sans-serif;
+		color: black;
+		display: inline;
+	}
+
+	p.cityFont {
+	       	padding-left: 15cm;
+		font-size: 15px;
+		font-family: "Courier New", Courier, monospace;
+		color: #484848;
+		display:inline;
+	}
+
+	p.dateFont {
+		padding-left: 17cm;
+		font-family: Impact, Charcoal, sans-serif	
+		color: red;
+
+	}
+</style>
+	<br>
+	<p class="cityFont">{{homeLocation}}<span style='color:red;margin-right:10em; display:inline-block;'>&nbsp;</span> {{awayLocation}}</p>
+	<p class="teamFont">{{homeTeam}} <span style="color: black;font-size:12px; margin-left:5em; margin-right:5em">vs</span> {{awayTeam}}</p>
+	<p class="dateFont">{{game.date}}</p>
+	<br>
+<form id="create-wagyr-form" class="form-horizontal" action="/make-wagyr" method="POST" novalidate>
     {% csrf_token %}
     {% crispy create_wagyr_form %}
     <div class="form-group">
         <div class="aab controls col-md-2"></div>
-        <div class="controls col-md-8">
+	<div class="controls col-md-8">
+            <input type='hidden' value ='{{game.event_id}}' name='game_id'>
             <input type="submit" name="submit" value="Submit" class="btn btn-success">
         </div>
     </div>
