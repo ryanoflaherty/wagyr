@@ -251,13 +251,11 @@ def check_game_winner(wagyr, user):
     try:
         boxscore_response = requests.get(boxscore_url, params)
         data = boxscore_response.json()
-        cache.set('daily_schedule', data)
     except ValueError as e:
         print(e)
         time.sleep(1)
         boxscore_response = requests.get(boxscore_url, params)
         data = boxscore_response.json()
-        cache.set('daily_schedule', data)
         pass
 
     if data['status'] == 'closed':
