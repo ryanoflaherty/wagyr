@@ -182,8 +182,6 @@ def index(request):
     games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
                                 date__gt=timezone.now())
 
-    import pdb; pdb.set_trace()
-
     if games.count() < 3:
         get_daily_sched()
         games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
