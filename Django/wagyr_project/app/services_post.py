@@ -42,7 +42,7 @@ def get_games(Team, messages, err):
     data = cache.get('schedule')
     if not data:
         schedule_url = "http://api.sportradar.us/nba-t3/games/2015/PST/schedule.json"
-        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        params = {'api_key': 'pa8j2hgacuvgkavsz5zfna7n'}
         try:
             schedule_response = requests.get(schedule_url, params)
             data = schedule_response.json()
@@ -136,7 +136,7 @@ def get_create_team(search_term, messages, err):
     data = cache.get('standings')
     if not data:
         standings_url = "http://api.sportradar.us/nba-t3/seasontd/2015/PST/standings.json"
-        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        params = {'api_key': 'pa8j2hgacuvgkavsz5zfna7n'}
         try:
             standings_response = requests.get(standings_url, params)
             data = standings_response.json()
@@ -194,7 +194,7 @@ def get_daily_sched():
     data = cache.get('daily_schedule')
     if not data:
         daily_sched_url = "http://api.sportradar.us/nba-t3/games/2016/" + str(today.month) + "/" + str(today.day) + "/schedule.json"
-        params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+        params = {'api_key': 'pa8j2hgacuvgkavsz5zfna7n'}
         try:
             daily_sched_response = requests.get(daily_sched_url, params)
             data = daily_sched_response.json()
@@ -252,7 +252,7 @@ def get_daily_sched():
 
 def check_game_winner(wagyr, user):
     boxscore_url = "http://api.sportradar.us/nba-t3/games/" + str(wagyr.game_id.event_id) + "/boxscore.json"
-    params = {'api_key': 'wfejyy6af8z84n9u8rdhrcgj'}
+    params = {'api_key': 'pa8j2hgacuvgkavsz5zfna7n'}
     try:
         boxscore_response = requests.get(boxscore_url, params)
         data = boxscore_response.json()
