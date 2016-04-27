@@ -23,13 +23,16 @@ def api_query_sched(search_term, messages, err):
     messages.append("No games found in our database, querying API for Team data")
     newTeam, created = get_create_team(search_term, messages, err)
 
-    if created:
-        messages.append("New entry for " + newTeam.name + " successful, getting schedule")
-        count = get_games(newTeam, messages, err)
-        return count
+    if newTeam:
+        if created:
+            messages.append("New entry for " + newTeam.name + " successful, getting schedule")
+            count = get_games(newTeam, messages, err)
+            return count
+        else:
+            count = check_sched_loaded(newTeam, messages, err)
+            return count
     else:
-        count = check_sched_loaded(newTeam, messages, err)
-        return count
+        return None
 
 
 def get_games(Team, messages, err):
@@ -180,6 +183,8 @@ def get_create_team(search_term, messages, err):
                         messages.append("Team already exists")
 
                     return newTeam, created
+
+    return None, False
 
 
 def get_daily_sched():

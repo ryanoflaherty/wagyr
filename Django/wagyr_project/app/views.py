@@ -178,27 +178,28 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
 # HTML Views
 #########################################################
 @login_required(login_url='/welcome', redirect_field_name='')
-def index(request):
-    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                date__gt=timezone.now())
+def index(request, e=None):
+    today = timezone.now().date()
+    tomorrow = today + timezone.timedelta(days=1)
+    games = Game.objects.filter(date__lte=tomorrow, date__gt=today)
 
     if games.count() < 3:
         get_daily_sched()
-        games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                    date__gt=timezone.now())
+        games = Game.objects.filter(date__lte=tomorrow, date__gt=today)
 
     form = searchGamebyTeam()
-    return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form})
+    return render(request, 'bootstrap/index.html', {'games': games, 'search_form': form, 'error': e})
 
 
 def welcome(request):
-    games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                date__gt=timezone.now())
+    today = timezone.now().date()
+    tomorrow = today + timezone.timedelta(days=1)
+    games = Game.objects.filter(date__lte=tomorrow, date__gt=today)
 
     if games.count() < 3:
         get_daily_sched()
-        games = Game.objects.filter(date__lte=timezone.now() + timezone.timedelta(days=1),
-                                    date__gt=timezone.now())
+        games = Game.objects.filter(date__lte=tomorrow, date__gt=today)
+
     return render(request, 'bootstrap/welcome.html', {'games': games})
 
 
@@ -345,7 +346,8 @@ def search_post(request):
             messages.append("Error getting schedule")
             end = time.time()
             messages.append("Time elapsed = " + str(end - start) + " seconds")
-            return render(request, 'bootstrap/results.html', {'debug': messages, 'errors': len(err)})
+            return index(request, "Please enter a valid Team")
+            #return render(request, 'bootstrap/results.html', {'debug': messages, 'errors': len(err)})
     else:
         csl_post(games[0].get_search_team(search_term), messages, err)
         messages.append("Found " + str(games.count()) + " in our database")
