@@ -126,10 +126,10 @@ class PaymentView(LoginRequiredMixin, StripeMixin, FormView):
         stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat"  # change to live secret key
 
         token = self.request.POST['stripe_token']
-
+        wagyr = Wagyr.objects.filter(Q(self_id=self.request.user) | Q(opponent_id=self.request.user)).latest('wagyr_id')
         try:
             stripe.Charge.create(
-                amount=1000,  # amount in cents
+                amount=int(wagyr.amount)*100,  # amount in cents
                 currency="usd",
                 source=token,
                 description="Wagyr Charge"
@@ -159,6 +159,7 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
         stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat"  # change to live secret key
 
         token = self.request.POST['stripe_token']
+        wagyr = Wagyr.objects.filter(Q(self_id=self.request.user) | Q(opponent_id=self.request.user)).latest('wagyr_id')
         # TODO Get user from the wagyr
         recipient = stripe.Recipient.create(
             name="John Doe",  # str(User.first_name) + str(User.last_name)
@@ -167,11 +168,13 @@ class ReceivePaymentView(LoginRequiredMixin, StripeMixin, FormView):
             card=token
         )
         transfer = stripe.Transfer.create(
-            amount=1000,
+            amount=int(wagyr.amount)*100,
             currency="usd",
             recipient=recipient.id,
             statement_descriptor="WAGYR",
         )
+        wagyr.status = wagyr.FULFILLED
+        wagyr.save()
         return super(ReceivePaymentView, self).form_valid(form)
 
 
@@ -262,6 +265,7 @@ class MakeWagyr(LoginRequiredMixin, TemplateView):
                             game_id=Game.objects.get(pk=game_id),
                             amount=form.cleaned_data['amount'],
                             self_team=form.cleaned_data['self_team'],
+                            opponent_team=form.cleaned_data['opponent_team'],
             )
             return redirect('/')
         else:

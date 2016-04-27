@@ -48,7 +48,12 @@ class createWagyrbyGame(forms.ModelForm):
     )
 
     self_team = forms.CharField(
-        label="Team",
+        label="Your Team",
+        max_length=100,
+        required=True,
+    )
+    opponent_team = forms.CharField(
+        label="Opponent Team",
         max_length=100,
         required=True,
     )
@@ -60,7 +65,7 @@ class createWagyrbyGame(forms.ModelForm):
             'game_id': forms.HiddenInput(),
         }
 
-        fields = ('opponent_id', 'amount', 'game_id', 'self_team',)
+        fields = ('opponent_id', 'amount', 'game_id', 'self_team', 'opponent_team')
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -84,15 +89,11 @@ class createWagyrbyGame(forms.ModelForm):
         self.helper.layout = Layout(
             'opponent_id',
             'amount',
+            'self_team'
         )
 
     def save(self, request, commit=True):
         wagyr = super(createWagyrbyGame, self).save(commit=False)
-        import pdb;
-        pdb.set_trace()
-        #wagyr.wagyr_id = self.cleaned_data['wagyr_id']
-        #wagyr.self_id = User.objects.get(username=str(request.user.username))
-        #wagyr.opponent_id = User.objects.get(id=self.cleaned_data['opponent_id'])
         wagyr.game_id = self.cleaned_data["game_id"]
         wagyr.amount = self.cleaned_data['amount']
 
