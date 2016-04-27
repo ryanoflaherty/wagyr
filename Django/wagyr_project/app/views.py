@@ -225,9 +225,10 @@ def profile(request):
 def wagyrs(request):
     user = request.user
     wagyrs = Wagyr.objects.filter(Q(self_id=user) | Q(opponent_id=user))
-    for wagyr in wagyrs:
-        if wagyr.status == 1:
-            check_game_winner(wagyr, user)
+    if wagyrs:
+        for wagyr in wagyrs:
+            if wagyr.status == 1:
+                check_game_winner(wagyr, user)
     return render(request, 'bootstrap/wagyr.html', {'user': user, 'wagyrs': wagyrs})
 
 
