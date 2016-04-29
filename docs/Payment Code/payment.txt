@@ -1,0 +1,233 @@
+####################################################
+
+#pip install stripe
+####################################################
+
+#@@@@@@@@ 1) securely collected and 
+#           tokenized your customer's credit 
+#           card using Checkout or Stripe.js
+####################################################
+
+#payment.html
+
+{% extends "base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+    Stripe.setPublishableKey('pk_test_GQYJHTl83M2zVUICU8unRENH'); #change to live publishable key
+
+    var stripeResponseHandler = function(status, response) {
+        var $form = $('#checkout-form');
+
+        if (response.error) {
+            // Show the errors on the form
+            $form.find('.payment-errors').text(response.error.message);
+            $form.find('.payment-errors').addClass('alert');
+            $form.find('.payment-errors').addClass('alert-error');
+            $form.find('button').prop('disabled', false);
+        } else {
+            // token contains id, last4, and card type
+            var token = response.id;
+            // Insert the token into the form so it gets submitted to the server
+            $form.append($('<input type="hidden" name="stripe_token" />').val(token));
+            // and re-submit
+            $form.get(0).submit();
+        }
+    };
+
+    jQuery(function($) {
+        $('#checkout-form').submit(function(e) {
+            var $form = $(this);
+
+            // Disable the submit button to prevent repeated clicks
+            $form.find('button').prop('disabled', true);
+
+            Stripe.createToken($form, stripeResponseHandler);
+
+            // Prevent the form from submitting with the default action
+            return false;
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <form method="post" action="" id="checkout-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="control-label" for="name">Name</label>
+            <div class="controls">
+                <input type="text" id="name" class="form-control" data-stripe="name" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_line1">Address Line</label>
+            <div class="controls">
+                <input type="text" id="address_line1" class="form-control" data-stripe="address_line1" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_line2">Address Line 2</label>
+            <div class="controls">
+                <input type="text" id="address_line2" class="form-control" data-stripe="address_line2" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_city">City</label>
+            <div class="controls">
+                <input type="text" id="address_city" class="form-control" data-stripe="address_city" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_state">State</label>
+            <div class="controls">
+                <input type="text" id="address_state" class="form-control" data-stripe="address_state" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_zip">Zip</label>
+            <div class="controls">
+                <input type="text" id="address_zip" class="form-control" data-stripe="address_zip" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="address_country">Country</label>
+            <div class="controls">
+                <input type="text" id="address_country" class="form-control" data-stripe="address_country" />
+            </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="card">Card</label>
+          <div class="controls">
+              <input type="text" id="card" class="form-control" data-stripe="number" />
+          </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="">Expiration (MM/YYYY)</label>
+            <div class="row">
+                <div class="col-xs-2">
+                    <input type="text" size="2" data-stripe="exp-month" class="form-control" />
+                </div>
+                <div class="col-xs-2">
+                    <input type="text" size="4" data-stripe="exp-year" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="cvc">CVC</label>
+            <div class="controls">
+                <input type="text" id="cvc" size="4" class="form-control" data-stripe="cvc" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="controls">
+                <input type="submit" value="Checkout" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+####################################################
+
+#forms.py
+
+class StripeForm(forms.Form):
+    stripe_token = forms.CharField()
+####################################################
+
+#@@@@@@@@ 2) receive payments through stripe
+#            by charging card
+####################################################
+
+# in urls.py
+
+from app.views import PaymentView, SuccessView
+
+urlpatterns += [
+    url(r'^payment_successful/$', PaymentView.as_view(), name='payment_successful'),
+    url(r'^thank_you/$', SuccessView.as_view(), name='thank_you'),
+]
+####################################################
+
+# in views.py
+import stripe
+
+from django.conf import settings
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic import FormView, TemplateView
+
+from app.forms import StripeForm
+
+class StripeMixin(object):
+    def get_context_data(self, kwargs):
+        context = super(StripeMixin, self).get_context_data(kwargs)
+        context['publishable_key'] = "pk_test_GQYJHTl83M2zVUICU8unRENH" #change to live publishable key
+        return context
+
+
+class SuccessView(TemplateView):
+    template_name = 'bootstrap/payment_successful.html'
+
+#Wagyr loser does this
+class PaymentView(StripeMixin, FormView):
+    template_name = 'bootstrap/payment.html'
+    form_class = StripeForm
+    success_url = reverse_lazy('thank_you')
+
+    def form_valid(self, form):
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+        
+        token = request.POST['stripeToken']
+        
+        try:
+          charge = stripe.Charge.create(
+              amount= 1000, # amount in cents
+              currency="usd",
+              source=token,
+              description="Wagyr Charge"
+          )
+          return super(PaymentView, self).form_valid(form)
+        except stripe.error.CardError, e:
+          # The card has been declined
+          print (e)
+          pass
+
+####################################################
+#@@@@@@@@ 3) create transfers through the 
+#           API to send funds to arbitrary 
+#           third-party bank accounts or debit cards
+####################################################
+# in urls.py
+
+from app.views import PaymentView, SuccessView
+
+urlpatterns += [
+    url(r'^receive_payment_successful/$', ReceivePaymentView.as_view(), name='receive_payment_successful'),
+]
+####################################################
+# in views.py
+
+class Received_SuccessView(TemplateView):
+    template_name = 'bootstrap/receive_payment_successful.html'
+
+#Wagyr winner does this
+class ReceivePaymentView(StripeMixin, FormView):
+    template_name = 'bootstrap/payment.html' # it's the same form for making a payment!
+    form_class = StripeForm
+    success_url = reverse_lazy('thank_you')
+
+    def form_valid(self, form):
+        stripe.api_key = "sk_test_ikub1dIq78V4qb52oTTAsYat" #change to live secret key
+        
+        token = request.POST['stripeToken']
+        
+        recipient = stripe.Recipient.create(
+          name="John Doe", #str(User.first_name) + str(User.last_name)
+          type="individual", 
+          email="payee@example.com", #str(User_email)
+          card=token_id
+        )
+####################################################
